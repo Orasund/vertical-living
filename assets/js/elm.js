@@ -5297,8 +5297,7 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$document = _Browser_document;
-var $author$project$Overlay$GameMenu = {$: 'GameMenu'};
-var $author$project$InteropDefinitions$RegisterSounds = function (a) {
+var $author$project$PortDefinition$RegisterSounds = function (a) {
 	return {$: 'RegisterSounds', a: a};
 };
 var $author$project$Gen$Sound$ClickButton = {$: 'ClickButton'};
@@ -5336,7 +5335,7 @@ var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $dillonkearns$elm_ts_json$TsJson$Decode$null = function (value_) {
 	return A2($dillonkearns$elm_ts_json$TsJson$Decode$literal, value_, $elm$json$Json$Encode$null);
 };
-var $author$project$InteropDefinitions$flags = $dillonkearns$elm_ts_json$TsJson$Decode$null(
+var $author$project$PortDefinition$flags = $dillonkearns$elm_ts_json$TsJson$Decode$null(
 	{});
 var $dillonkearns$elm_ts_json$Internal$TsJsonType$Boolean = {$: 'Boolean'};
 var $dillonkearns$elm_ts_json$TsJson$Internal$Encode$Encoder = F2(
@@ -5591,45 +5590,55 @@ var $dillonkearns$elm_ts_json$TsJson$Encode$variantTagged = F3(
 				]),
 			builder);
 	});
-var $author$project$InteropDefinitions$fromElm = $dillonkearns$elm_ts_json$TsJson$Encode$buildUnion(
-	A3(
-		$dillonkearns$elm_ts_json$TsJson$Encode$variantTagged,
-		'registerSounds',
-		$dillonkearns$elm_ts_json$TsJson$Encode$list(
-			A2($dillonkearns$elm_ts_json$TsJson$Encode$map, $author$project$Gen$Sound$toString, $dillonkearns$elm_ts_json$TsJson$Encode$string)),
+var $author$project$PortDefinition$fromElm = function () {
+	var soundEncoder = A2($dillonkearns$elm_ts_json$TsJson$Encode$map, $author$project$Gen$Sound$toString, $dillonkearns$elm_ts_json$TsJson$Encode$string);
+	return $dillonkearns$elm_ts_json$TsJson$Encode$buildUnion(
 		A3(
 			$dillonkearns$elm_ts_json$TsJson$Encode$variantTagged,
-			'playSound',
-			$dillonkearns$elm_ts_json$TsJson$Encode$object(
-				_List_fromArray(
-					[
-						A3(
-						$dillonkearns$elm_ts_json$TsJson$Encode$required,
-						'sound',
-						function (obj) {
-							return $author$project$Gen$Sound$toString(obj.sound);
-						},
-						$dillonkearns$elm_ts_json$TsJson$Encode$string),
-						A3(
-						$dillonkearns$elm_ts_json$TsJson$Encode$required,
-						'looping',
-						function ($) {
-							return $.looping;
-						},
-						$dillonkearns$elm_ts_json$TsJson$Encode$bool)
-					])),
-			$dillonkearns$elm_ts_json$TsJson$Encode$union(
-				F3(
-					function (playSound, registerSounds, value) {
-						if (value.$ === 'RegisterSounds') {
-							var list = value.a;
-							return registerSounds(list);
-						} else {
-							var args = value.a;
-							return playSound(args);
-						}
-					})))));
-var $author$project$InteropDefinitions$SoundEnded = function (a) {
+			'registerSounds',
+			$dillonkearns$elm_ts_json$TsJson$Encode$list(soundEncoder),
+			A3(
+				$dillonkearns$elm_ts_json$TsJson$Encode$variantTagged,
+				'stopSound',
+				soundEncoder,
+				A3(
+					$dillonkearns$elm_ts_json$TsJson$Encode$variantTagged,
+					'playSound',
+					$dillonkearns$elm_ts_json$TsJson$Encode$object(
+						_List_fromArray(
+							[
+								A3(
+								$dillonkearns$elm_ts_json$TsJson$Encode$required,
+								'sound',
+								function (obj) {
+									return $author$project$Gen$Sound$toString(obj.sound);
+								},
+								$dillonkearns$elm_ts_json$TsJson$Encode$string),
+								A3(
+								$dillonkearns$elm_ts_json$TsJson$Encode$required,
+								'looping',
+								function ($) {
+									return $.looping;
+								},
+								$dillonkearns$elm_ts_json$TsJson$Encode$bool)
+							])),
+					$dillonkearns$elm_ts_json$TsJson$Encode$union(
+						F4(
+							function (playSound, stopSound, registerSounds, value) {
+								switch (value.$) {
+									case 'RegisterSounds':
+										var list = value.a;
+										return registerSounds(list);
+									case 'PlaySound':
+										var args = value.a;
+										return playSound(args);
+									default:
+										var args = value.a;
+										return stopSound(args);
+								}
+							}))))));
+}();
+var $author$project$PortDefinition$SoundEnded = function (a) {
 	return {$: 'SoundEnded', a: a};
 };
 var $dillonkearns$elm_ts_json$Internal$TsJsonType$ArrayIndex = F2(
@@ -6639,6 +6648,18 @@ var $dillonkearns$elm_ts_json$Internal$TypeReducer$simplifyIntersection = functi
 	}();
 	return thing;
 };
+var $dillonkearns$elm_ts_json$TsJson$Decode$map2 = F3(
+	function (mapFn, _v0, _v1) {
+		var innerDecoder1 = _v0.a;
+		var innerType1 = _v0.b;
+		var innerDecoder2 = _v1.a;
+		var innerType2 = _v1.b;
+		return A2(
+			$dillonkearns$elm_ts_json$TsJson$Internal$Decode$Decoder,
+			A3($elm$json$Json$Decode$map2, mapFn, innerDecoder1, innerDecoder2),
+			A2($dillonkearns$elm_ts_json$Internal$TypeReducer$intersect, innerType1, innerType2));
+	});
+var $dillonkearns$elm_ts_json$TsJson$Decode$andMap = $dillonkearns$elm_ts_json$TsJson$Decode$map2($elm$core$Basics$apR);
 var $dillonkearns$elm_ts_json$TsJson$Decode$andThen = F2(
 	function (_v0, _v1) {
 		var _function = _v0.a;
@@ -6720,6 +6741,19 @@ var $dillonkearns$elm_ts_json$TsJson$Decode$fail = function (message) {
 		$elm$json$Json$Decode$fail(message),
 		$dillonkearns$elm_ts_json$Internal$TsJsonType$Unknown);
 };
+var $dillonkearns$elm_ts_json$TsJson$Decode$field = F2(
+	function (fieldName, _v0) {
+		var innerDecoder = _v0.a;
+		var innerType = _v0.b;
+		return A2(
+			$dillonkearns$elm_ts_json$TsJson$Internal$Decode$Decoder,
+			A2($elm$json$Json$Decode$field, fieldName, innerDecoder),
+			$dillonkearns$elm_ts_json$Internal$TsJsonType$TypeObject(
+				_List_fromArray(
+					[
+						_Utils_Tuple3($dillonkearns$elm_ts_json$Internal$TsJsonType$Required, fieldName, innerType)
+					])));
+	});
 var $author$project$Gen$Sound$fromString = function (string) {
 	if (string === 'ClickButton.mp3') {
 		return $elm$core$Maybe$Just($author$project$Gen$Sound$ClickButton);
@@ -6734,7 +6768,7 @@ var $dillonkearns$elm_ts_json$TsJson$Decode$succeed = function (value_) {
 		$elm$json$Json$Decode$succeed(value_),
 		$dillonkearns$elm_ts_json$Internal$TsJsonType$Unknown);
 };
-var $author$project$InteropDefinitions$toElm = A2(
+var $author$project$PortDefinition$toElm = A2(
 	$dillonkearns$elm_ts_json$TsJson$Decode$discriminatedUnion,
 	'type',
 	_List_fromArray(
@@ -6742,27 +6776,30 @@ var $author$project$InteropDefinitions$toElm = A2(
 			_Utils_Tuple2(
 			'soundEnded',
 			A2(
-				$dillonkearns$elm_ts_json$TsJson$Decode$andThen,
-				$dillonkearns$elm_ts_json$TsJson$Decode$andThenInit(
-					function (string) {
-						return A2(
-							$elm$core$Maybe$withDefault,
-							$dillonkearns$elm_ts_json$TsJson$Decode$fail('Unkown sound ended: ' + string),
-							A2(
-								$elm$core$Maybe$map,
-								function (sound) {
-									return $dillonkearns$elm_ts_json$TsJson$Decode$succeed(
-										$author$project$InteropDefinitions$SoundEnded(sound));
-								},
-								$author$project$Gen$Sound$fromString(string)));
-					}),
-				$dillonkearns$elm_ts_json$TsJson$Decode$string))
+				$dillonkearns$elm_ts_json$TsJson$Decode$andMap,
+				A2(
+					$dillonkearns$elm_ts_json$TsJson$Decode$field,
+					'sound',
+					A2(
+						$dillonkearns$elm_ts_json$TsJson$Decode$andThen,
+						$dillonkearns$elm_ts_json$TsJson$Decode$andThenInit(
+							function (string) {
+								return A2(
+									$elm$core$Maybe$withDefault,
+									$dillonkearns$elm_ts_json$TsJson$Decode$fail('Unkown sound ended: ' + string),
+									A2(
+										$elm$core$Maybe$map,
+										$dillonkearns$elm_ts_json$TsJson$Decode$succeed,
+										$author$project$Gen$Sound$fromString(string)));
+							}),
+						$dillonkearns$elm_ts_json$TsJson$Decode$string)),
+				$dillonkearns$elm_ts_json$TsJson$Decode$succeed($author$project$PortDefinition$SoundEnded)))
 		]));
-var $author$project$InteropDefinitions$interop = {flags: $author$project$InteropDefinitions$flags, fromElm: $author$project$InteropDefinitions$fromElm, toElm: $author$project$InteropDefinitions$toElm};
-var $author$project$InteropPorts$interopFromElm = _Platform_outgoingPort('interopFromElm', $elm$core$Basics$identity);
-var $author$project$InteropPorts$fromElm = function (value) {
-	return $author$project$InteropPorts$interopFromElm(
-		A3($elm$core$Basics$apR, $author$project$InteropDefinitions$interop.fromElm, $dillonkearns$elm_ts_json$TsJson$Encode$encoder, value));
+var $author$project$PortDefinition$interop = {flags: $author$project$PortDefinition$flags, fromElm: $author$project$PortDefinition$fromElm, toElm: $author$project$PortDefinition$toElm};
+var $author$project$Port$interopFromElm = _Platform_outgoingPort('interopFromElm', $elm$core$Basics$identity);
+var $author$project$Port$fromElm = function (value) {
+	return $author$project$Port$interopFromElm(
+		A3($elm$core$Basics$apR, $author$project$PortDefinition$interop.fromElm, $dillonkearns$elm_ts_json$TsJson$Encode$encoder, value));
 };
 var $elm$random$Random$Seed = F2(
 	function (a, b) {
@@ -6788,25 +6825,25 @@ var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			game: $author$project$Game$new,
-			overlay: $elm$core$Maybe$Just($author$project$Overlay$GameMenu),
+			overlay: $elm$core$Maybe$Nothing,
 			seed: $elm$random$Random$initialSeed(42)
 		},
-		$author$project$InteropPorts$fromElm(
-			$author$project$InteropDefinitions$RegisterSounds($author$project$Gen$Sound$asList)));
+		$author$project$Port$fromElm(
+			$author$project$PortDefinition$RegisterSounds($author$project$Gen$Sound$asList)));
 };
 var $author$project$Main$Received = function (a) {
 	return {$: 'Received', a: a};
 };
 var $elm$core$Platform$Sub$map = _Platform_map;
 var $elm$json$Json$Decode$decodeValue = _Json_run;
-var $author$project$InteropPorts$interopToElm = _Platform_incomingPort('interopToElm', $elm$json$Json$Decode$value);
-var $author$project$InteropPorts$toElm = $author$project$InteropPorts$interopToElm(
+var $author$project$Port$interopToElm = _Platform_incomingPort('interopToElm', $elm$json$Json$Decode$value);
+var $author$project$Port$toElm = $author$project$Port$interopToElm(
 	$elm$json$Json$Decode$decodeValue(
-		$dillonkearns$elm_ts_json$TsJson$Decode$decoder($author$project$InteropDefinitions$interop.toElm)));
+		$dillonkearns$elm_ts_json$TsJson$Decode$decoder($author$project$PortDefinition$interop.toElm)));
 var $author$project$Main$subscriptions = function (_v0) {
-	return A2($elm$core$Platform$Sub$map, $author$project$Main$Received, $author$project$InteropPorts$toElm);
+	return A2($elm$core$Platform$Sub$map, $author$project$Main$Received, $author$project$Port$toElm);
 };
-var $author$project$InteropDefinitions$PlaySound = function (a) {
+var $author$project$PortDefinition$PlaySound = function (a) {
 	return {$: 'PlaySound', a: a};
 };
 var $author$project$Main$gotSeed = F2(
@@ -6848,17 +6885,17 @@ var $author$project$Main$update = F2(
 			case 'SoundRequested':
 				return _Utils_Tuple2(
 					model,
-					$author$project$InteropPorts$fromElm(
-						$author$project$InteropDefinitions$PlaySound(
+					$author$project$Port$fromElm(
+						$author$project$PortDefinition$PlaySound(
 							{looping: false, sound: $author$project$Gen$Sound$ClickButton})));
 			case 'Received':
 				var result = msg.a;
-				if (result.$ === 'Err') {
-					var error = result.a;
-					var _v2 = A2($elm$core$Debug$log, 'received invalid json', error);
+				if (result.$ === 'Ok') {
+					var sound = result.a.a;
 					return withNoCmd(model);
 				} else {
-					var sound = result.a.a;
+					var error = result.a;
+					var _v2 = A2($elm$core$Debug$log, 'received invalid json', error);
 					return withNoCmd(model);
 				}
 			default:
@@ -6897,8 +6934,6 @@ var $elm$core$List$singleton = function (value) {
 	return _List_fromArray(
 		[value]);
 };
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$virtual_dom$VirtualDom$attribute = F2(
 	function (key, value) {
 		return A2(
@@ -6946,6 +6981,8 @@ var $Orasund$elm_layout$Layout$asButton = function (args) {
 				args.onPress)));
 };
 var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $Orasund$elm_layout$Layout$textButton = F2(
 	function (attrs, args) {
 		return A2(
@@ -6959,6 +6996,127 @@ var $Orasund$elm_layout$Layout$textButton = F2(
 				]));
 	});
 var $author$project$Config$title = 'Game Template';
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
+var $elm$core$List$concatMap = F2(
+	function (f, list) {
+		return $elm$core$List$concat(
+			A2($elm$core$List$map, f, list));
+	});
+var $elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var $author$project$Pixel$pixelated = A2($elm$html$Html$Attributes$style, 'image-rendering', 'pixelated');
+var $author$project$Config$zoom = 4;
+var $author$project$Config$spriteHeight = 18 * $author$project$Config$zoom;
+var $author$project$Config$spriteWidth = 16 * $author$project$Config$zoom;
+var $author$project$Config$squareHeight = 10 * $author$project$Config$zoom;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $author$project$Pixel$spriteImage = F2(
+	function (attrs, args) {
+		var _v0 = args.pos;
+		var x = _v0.a;
+		var y = _v0.b;
+		return A2(
+			$elm$html$Html$div,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$Attributes$style,
+						'width',
+						$elm$core$String$fromFloat(args.width) + 'px'),
+						A2(
+						$elm$html$Html$Attributes$style,
+						'height',
+						$elm$core$String$fromFloat(args.height) + 'px'),
+						A2($elm$html$Html$Attributes$style, 'background-image', 'url(' + (args.url + ') ')),
+						A2(
+						$elm$html$Html$Attributes$style,
+						'background-position',
+						$elm$core$String$fromFloat((-args.width) * x) + ('px ' + ($elm$core$String$fromFloat((-args.height) * y) + 'px'))),
+						A2(
+						$elm$html$Html$Attributes$style,
+						'background-size',
+						$elm$core$String$fromFloat(args.width * args.sheetColumns) + ('px ' + ($elm$core$String$fromFloat(args.height * args.sheetRows) + 'px'))),
+						A2($elm$html$Html$Attributes$style, 'background-repeat', 'no-repeat')
+					]),
+				attrs),
+			_List_Nil);
+	});
+var $author$project$View$Square$toHtml = function (attrs) {
+	return A2(
+		$author$project$Pixel$spriteImage,
+		attrs,
+		{
+			height: $author$project$Config$spriteHeight,
+			pos: _Utils_Tuple2(0, 0),
+			sheetColumns: 2,
+			sheetRows: 2,
+			url: 'assets/spritesheet.png',
+			width: $author$project$Config$spriteWidth
+		});
+};
+var $author$project$View$Board$toHtml = A2(
+	$elm$html$Html$div,
+	_List_fromArray(
+		[
+			A2($elm$html$Html$Attributes$style, 'position', 'relative')
+		]),
+	A2(
+		$elm$core$List$map,
+		function (_v1) {
+			var x = _v1.a;
+			var y = _v1.b;
+			var z = _v1.c;
+			return $author$project$View$Square$toHtml(
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$Attributes$style,
+						'top',
+						$elm$core$String$fromInt((((((y * ($author$project$Config$spriteHeight - $author$project$Config$squareHeight)) / 2) | 0) + (((x * ($author$project$Config$spriteHeight - $author$project$Config$squareHeight)) / 2) | 0)) - (z * ($author$project$Config$squareHeight - $author$project$Config$zoom))) + ($author$project$Config$spriteHeight * 2)) + 'px'),
+						A2(
+						$elm$html$Html$Attributes$style,
+						'left',
+						$elm$core$String$fromInt(((((y * $author$project$Config$spriteWidth) / 2) | 0) - (((x * $author$project$Config$spriteWidth) / 2) | 0)) + (2 * $author$project$Config$spriteWidth)) + 'px'),
+						A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+						$author$project$Pixel$pixelated
+					]));
+		},
+		A2(
+			$elm$core$List$concatMap,
+			function (_v0) {
+				var x = _v0.a;
+				var y = _v0.b;
+				return A2(
+					$elm$core$List$map,
+					function (z) {
+						return _Utils_Tuple3(x, y, z);
+					},
+					A2($elm$core$List$range, 0, 3));
+			},
+			A2(
+				$elm$core$List$concatMap,
+				function (y) {
+					return A2(
+						$elm$core$List$map,
+						$elm$core$Tuple$pair(y),
+						A2($elm$core$List$range, 0, 3));
+				},
+				A2($elm$core$List$range, 0, 3)))));
 var $author$project$Main$NewGame = {$: 'NewGame'};
 var $author$project$View$Overlay$asFullScreenOverlay = function (attrs) {
 	return $Orasund$elm_layout$Layout$el(
@@ -7064,7 +7222,7 @@ var $author$project$View$viewportMeta = function () {
 		_List_Nil);
 }();
 var $author$project$Main$view = function (model) {
-	var content = $elm$html$Html$text('');
+	var content = $author$project$View$Board$toHtml;
 	return {
 		body: _List_fromArray(
 			[

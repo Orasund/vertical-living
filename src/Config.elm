@@ -23,3 +23,23 @@ screenMinHeight =
 title : String
 title =
     "Game Template"
+
+
+zoom : number
+zoom =
+    4
+
+
+spriteHeight : number
+spriteHeight =
+    18 * zoom
+
+
+spriteWidth : number
+spriteWidth =
+    16 * zoom
+
+
+squareHeight : number
+squareHeight =
+    10 * zoom

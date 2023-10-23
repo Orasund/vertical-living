@@ -13,6 +13,7 @@ import Port
 import PortDefinition exposing (FromElm(..), ToElm(..))
 import Random exposing (Generator, Seed)
 import View
+import View.Board
 import View.Overlay
 
 
@@ -44,7 +45,7 @@ init : () -> ( Model, Cmd Msg )
 init () =
     ( { game = Game.new
       , seed = Random.initialSeed 42
-      , overlay = Just GameMenu
+      , overlay = Nothing
       }
     , Gen.Sound.asList |> RegisterSounds |> Port.fromElm
     )
@@ -118,7 +119,7 @@ view :
 view model =
     let
         content =
-            Html.text ""
+            View.Board.toHtml
     in
     { title = Config.title
     , body =

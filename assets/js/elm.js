@@ -6820,7 +6820,11 @@ var $elm$random$Random$initialSeed = function (x) {
 	return $elm$random$Random$next(
 		A2($elm$random$Random$Seed, state2, incr));
 };
-var $author$project$Game$new = {};
+var $author$project$Block$BrickWall = {$: 'BrickWall'};
+var $author$project$Game$new = {
+	board: {dict: $elm$core$Dict$empty, maxZ: 0},
+	nextBlock: $author$project$Block$BrickWall
+};
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
@@ -6846,6 +6850,21 @@ var $author$project$Main$subscriptions = function (_v0) {
 var $author$project$PortDefinition$PlaySound = function (a) {
 	return {$: 'PlaySound', a: a};
 };
+var $elm$random$Random$step = F2(
+	function (_v0, seed) {
+		var generator = _v0.a;
+		return generator(seed);
+	});
+var $author$project$Main$apply = F2(
+	function (_v0, generator) {
+		var seed = _v0.seed;
+		var _v1 = A2($elm$random$Random$step, generator, seed);
+		var model = _v1.a;
+		var newSeed = _v1.b;
+		return _Utils_update(
+			model,
+			{seed: newSeed});
+	});
 var $author$project$Main$gotSeed = F2(
 	function (seed, model) {
 		return _Utils_update(
@@ -6853,6 +6872,22 @@ var $author$project$Main$gotSeed = F2(
 			{seed: seed});
 	});
 var $elm$core$Debug$log = _Debug_log;
+var $elm$random$Random$Generator = function (a) {
+	return {$: 'Generator', a: a};
+};
+var $elm$random$Random$map = F2(
+	function (func, _v0) {
+		var genA = _v0.a;
+		return $elm$random$Random$Generator(
+			function (seed0) {
+				var _v1 = genA(seed0);
+				var a = _v1.a;
+				var seed1 = _v1.b;
+				return _Utils_Tuple2(
+					func(a),
+					seed1);
+			});
+	});
 var $author$project$Main$setOverlay = F2(
 	function (maybeOverlay, model) {
 		return _Utils_update(
@@ -6869,6 +6904,150 @@ var $author$project$Main$newGame = function (model) {
 };
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Block$Flower = {$: 'Flower'};
+var $author$project$Block$WoodWall = {$: 'WoodWall'};
+var $author$project$Block$asList = _List_fromArray(
+	[$author$project$Block$BrickWall, $author$project$Block$WoodWall, $author$project$Block$Flower]);
+var $elm$random$Random$constant = function (value) {
+	return $elm$random$Random$Generator(
+		function (seed) {
+			return _Utils_Tuple2(value, seed);
+		});
+};
+var $elm$random$Random$addOne = function (value) {
+	return _Utils_Tuple2(1, value);
+};
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm$core$Basics$abs = function (n) {
+	return (n < 0) ? (-n) : n;
+};
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Bitwise$xor = _Bitwise_xor;
+var $elm$random$Random$peel = function (_v0) {
+	var state = _v0.a;
+	var word = (state ^ (state >>> ((state >>> 28) + 4))) * 277803737;
+	return ((word >>> 22) ^ word) >>> 0;
+};
+var $elm$random$Random$float = F2(
+	function (a, b) {
+		return $elm$random$Random$Generator(
+			function (seed0) {
+				var seed1 = $elm$random$Random$next(seed0);
+				var range = $elm$core$Basics$abs(b - a);
+				var n1 = $elm$random$Random$peel(seed1);
+				var n0 = $elm$random$Random$peel(seed0);
+				var lo = (134217727 & n1) * 1.0;
+				var hi = (67108863 & n0) * 1.0;
+				var val = ((hi * 134217728.0) + lo) / 9007199254740992.0;
+				var scaled = (val * range) + a;
+				return _Utils_Tuple2(
+					scaled,
+					$elm$random$Random$next(seed1));
+			});
+	});
+var $elm$random$Random$getByWeight = F3(
+	function (_v0, others, countdown) {
+		getByWeight:
+		while (true) {
+			var weight = _v0.a;
+			var value = _v0.b;
+			if (!others.b) {
+				return value;
+			} else {
+				var second = others.a;
+				var otherOthers = others.b;
+				if (_Utils_cmp(
+					countdown,
+					$elm$core$Basics$abs(weight)) < 1) {
+					return value;
+				} else {
+					var $temp$_v0 = second,
+						$temp$others = otherOthers,
+						$temp$countdown = countdown - $elm$core$Basics$abs(weight);
+					_v0 = $temp$_v0;
+					others = $temp$others;
+					countdown = $temp$countdown;
+					continue getByWeight;
+				}
+			}
+		}
+	});
+var $elm$core$List$sum = function (numbers) {
+	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
+};
+var $elm$random$Random$weighted = F2(
+	function (first, others) {
+		var normalize = function (_v0) {
+			var weight = _v0.a;
+			return $elm$core$Basics$abs(weight);
+		};
+		var total = normalize(first) + $elm$core$List$sum(
+			A2($elm$core$List$map, normalize, others));
+		return A2(
+			$elm$random$Random$map,
+			A2($elm$random$Random$getByWeight, first, others),
+			A2($elm$random$Random$float, 0, total));
+	});
+var $elm$random$Random$uniform = F2(
+	function (value, valueList) {
+		return A2(
+			$elm$random$Random$weighted,
+			$elm$random$Random$addOne(value),
+			A2($elm$core$List$map, $elm$random$Random$addOne, valueList));
+	});
+var $author$project$Game$place = F2(
+	function (pos, game) {
+		return A2(
+			$elm$random$Random$map,
+			function (block) {
+				var z = 1 + A2(
+					$elm$core$Maybe$withDefault,
+					0,
+					A2(
+						$elm$core$Maybe$map,
+						function ($) {
+							return $.maxZ;
+						},
+						A2($elm$core$Dict$get, pos, game.board.dict)));
+				return _Utils_update(
+					game,
+					{
+						board: {
+							dict: A3(
+								$elm$core$Dict$update,
+								pos,
+								function (maybe) {
+									return $elm$core$Maybe$Just(
+										function (elem) {
+											return {
+												blocks: A3($elm$core$Dict$insert, z, game.nextBlock, elem.blocks),
+												maxZ: z
+											};
+										}(
+											A2(
+												$elm$core$Maybe$withDefault,
+												{blocks: $elm$core$Dict$empty, maxZ: 0},
+												maybe)));
+								},
+								game.board.dict),
+							maxZ: A2($elm$core$Basics$max, game.board.maxZ, z)
+						},
+						nextBlock: block
+					});
+			},
+			function () {
+				var _v0 = $author$project$Block$asList;
+				if (_v0.b) {
+					var head = _v0.a;
+					var tail = _v0.b;
+					return A2($elm$random$Random$uniform, head, tail);
+				} else {
+					return $elm$random$Random$constant($author$project$Block$BrickWall);
+				}
+			}());
+	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		var withNoCmd = function (a) {
@@ -6898,13 +7077,35 @@ var $author$project$Main$update = F2(
 					var _v2 = A2($elm$core$Debug$log, 'received invalid json', error);
 					return withNoCmd(model);
 				}
-			default:
+			case 'SetOverlay':
 				var maybeOverlay = msg.a;
 				return withNoCmd(
 					A2($author$project$Main$setOverlay, maybeOverlay, model));
+			default:
+				var pos = msg.a;
+				return withNoCmd(
+					A2(
+						$author$project$Main$apply,
+						model,
+						A2(
+							$elm$random$Random$map,
+							function (game) {
+								return _Utils_update(
+									model,
+									{game: game});
+							},
+							A2($author$project$Game$place, pos, model.game))));
 		}
 	});
-var $author$project$Main$SoundRequested = {$: 'SoundRequested'};
+var $author$project$Main$Place = function (a) {
+	return {$: 'Place', a: a};
+};
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
+var $Orasund$elm_layout$Layout$alignAtCenter = A2($elm$html$Html$Attributes$style, 'align-items', 'center');
+var $Orasund$elm_layout$Layout$contentCentered = A2($elm$html$Html$Attributes$style, 'justify-content', 'center');
+var $Orasund$elm_layout$Layout$centered = _List_fromArray(
+	[$Orasund$elm_layout$Layout$contentCentered, $Orasund$elm_layout$Layout$alignAtCenter]);
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -6914,8 +7115,16 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
-var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
+var $Orasund$elm_layout$Layout$column = function (attrs) {
+	return $elm$html$Html$div(
+		_Utils_ap(
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+					A2($elm$html$Html$Attributes$style, 'flex-direction', 'column')
+				]),
+			attrs));
+};
 var $Orasund$elm_layout$Layout$el = F2(
 	function (attrs, content) {
 		return A2(
@@ -6930,10 +7139,52 @@ var $Orasund$elm_layout$Layout$el = F2(
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $author$project$Config$screenMinHeight = 700;
 var $author$project$Config$screenMinWidth = 400;
-var $elm$core$List$singleton = function (value) {
-	return _List_fromArray(
-		[value]);
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
 };
+var $elm$core$List$concatMap = F2(
+	function (f, list) {
+		return $elm$core$List$concat(
+			A2($elm$core$List$map, f, list));
+	});
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
+var $author$project$Block$isSolid = function (block) {
+	if (block.$ === 'Flower') {
+		return false;
+	} else {
+		return true;
+	}
+};
+var $elm$core$Basics$not = _Basics_not;
+var $elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var $author$project$Pixel$pixelated = A2($elm$html$Html$Attributes$style, 'image-rendering', 'pixelated');
 var $elm$virtual_dom$VirtualDom$attribute = F2(
 	function (key, value) {
 		return A2(
@@ -6995,35 +7246,89 @@ var $Orasund$elm_layout$Layout$textButton = F2(
 					$elm$html$Html$text(args.label)
 				]));
 	});
-var $author$project$Config$title = 'Game Template';
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
-};
-var $elm$core$List$concatMap = F2(
-	function (f, list) {
-		return $elm$core$List$concat(
-			A2($elm$core$List$map, f, list));
-	});
-var $elm$core$Tuple$pair = F2(
-	function (a, b) {
-		return _Utils_Tuple2(a, b);
-	});
-var $author$project$Pixel$pixelated = A2($elm$html$Html$Attributes$style, 'image-rendering', 'pixelated');
-var $author$project$Config$zoom = 4;
+var $author$project$Config$zoom = 6;
 var $author$project$Config$spriteHeight = 18 * $author$project$Config$zoom;
 var $author$project$Config$spriteWidth = 16 * $author$project$Config$zoom;
 var $author$project$Config$squareHeight = 10 * $author$project$Config$zoom;
-var $elm$core$Basics$negate = function (n) {
-	return -n;
+var $author$project$View$Board$toIsomatricPos = function (_v0) {
+	var x = _v0.a;
+	var y = _v0.b;
+	var z = _v0.c;
+	return _Utils_Tuple2(((((y * $author$project$Config$spriteWidth) / 2) | 0) - (((x * $author$project$Config$spriteWidth) / 2) | 0)) + 140, (((((y * ($author$project$Config$spriteHeight - $author$project$Config$squareHeight)) / 2) | 0) + (((x * ($author$project$Config$spriteHeight - $author$project$Config$squareHeight)) / 2) | 0)) - (z * ($author$project$Config$squareHeight - $author$project$Config$zoom))) + ($author$project$Config$spriteHeight * 2));
 };
+var $author$project$View$Board$selection = F2(
+	function (args, board) {
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'position', 'relative')
+				]),
+			A2(
+				$elm$core$List$map,
+				function (_v0) {
+					var x = _v0.a;
+					var y = _v0.b;
+					var active = A2(
+						$elm$core$Maybe$withDefault,
+						true,
+						A2(
+							$elm$core$Maybe$map,
+							$author$project$Block$isSolid,
+							A2(
+								$elm$core$Maybe$andThen,
+								function (_v2) {
+									var maxZ = _v2.maxZ;
+									var blocks = _v2.blocks;
+									return A2($elm$core$Dict$get, maxZ, blocks);
+								},
+								A2(
+									$elm$core$Dict$get,
+									_Utils_Tuple2(x, y),
+									board.dict))));
+					var _v1 = $author$project$View$Board$toIsomatricPos(
+						_Utils_Tuple3(x, y, 4));
+					var left = _v1.a;
+					var top = _v1.b;
+					return A2(
+						$Orasund$elm_layout$Layout$textButton,
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$Attributes$style,
+								'top',
+								$elm$core$String$fromInt(top) + 'px'),
+								A2(
+								$elm$html$Html$Attributes$style,
+								'left',
+								$elm$core$String$fromInt(left) + 'px'),
+								A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+								$author$project$Pixel$pixelated,
+								$elm$html$Html$Attributes$class('as-square'),
+								$elm$html$Html$Attributes$disabled(!active)
+							]),
+						{
+							label: 'place',
+							onPress: active ? $elm$core$Maybe$Just(
+								args.onSelect(
+									_Utils_Tuple2(x, y))) : $elm$core$Maybe$Nothing
+						});
+				},
+				A2(
+					$elm$core$List$concatMap,
+					function (y) {
+						return A2(
+							$elm$core$List$map,
+							$elm$core$Tuple$pair(y),
+							A2($elm$core$List$range, 0, 3));
+					},
+					A2($elm$core$List$range, 0, 3))));
+	});
+var $elm$core$List$singleton = function (value) {
+	return _List_fromArray(
+		[value]);
+};
+var $author$project$Config$title = 'Game Template';
 var $author$project$Pixel$spriteImage = F2(
 	function (attrs, args) {
 		var _v0 = args.pos;
@@ -7056,67 +7361,111 @@ var $author$project$Pixel$spriteImage = F2(
 				attrs),
 			_List_Nil);
 	});
-var $author$project$View$Square$toHtml = function (attrs) {
-	return A2(
-		$author$project$Pixel$spriteImage,
-		attrs,
-		{
-			height: $author$project$Config$spriteHeight,
-			pos: _Utils_Tuple2(0, 0),
-			sheetColumns: 2,
-			sheetRows: 2,
-			url: 'assets/spritesheet.png',
-			width: $author$project$Config$spriteWidth
-		});
+var $author$project$View$Block$fromPos = F2(
+	function (pos, attrs) {
+		return A2(
+			$author$project$Pixel$spriteImage,
+			A2($elm$core$List$cons, $author$project$Pixel$pixelated, attrs),
+			{height: $author$project$Config$spriteHeight, pos: pos, sheetColumns: 2, sheetRows: 2, url: 'assets/spritesheet.png', width: $author$project$Config$spriteWidth});
+	});
+var $author$project$Block$toSprite = function (block) {
+	switch (block.$) {
+		case 'BrickWall':
+			return _Utils_Tuple2(0, 1);
+		case 'WoodWall':
+			return _Utils_Tuple2(0, 0);
+		default:
+			return _Utils_Tuple2(1, 0);
+	}
 };
-var $author$project$View$Board$toHtml = A2(
-	$elm$html$Html$div,
-	_List_fromArray(
-		[
-			A2($elm$html$Html$Attributes$style, 'position', 'relative')
-		]),
-	A2(
-		$elm$core$List$map,
-		function (_v1) {
-			var x = _v1.a;
-			var y = _v1.b;
-			var z = _v1.c;
-			return $author$project$View$Square$toHtml(
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$Attributes$style,
-						'top',
-						$elm$core$String$fromInt((((((y * ($author$project$Config$spriteHeight - $author$project$Config$squareHeight)) / 2) | 0) + (((x * ($author$project$Config$spriteHeight - $author$project$Config$squareHeight)) / 2) | 0)) - (z * ($author$project$Config$squareHeight - $author$project$Config$zoom))) + ($author$project$Config$spriteHeight * 2)) + 'px'),
-						A2(
-						$elm$html$Html$Attributes$style,
-						'left',
-						$elm$core$String$fromInt(((((y * $author$project$Config$spriteWidth) / 2) | 0) - (((x * $author$project$Config$spriteWidth) / 2) | 0)) + (2 * $author$project$Config$spriteWidth)) + 'px'),
-						A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
-						$author$project$Pixel$pixelated
-					]));
-		},
-		A2(
-			$elm$core$List$concatMap,
-			function (_v0) {
-				var x = _v0.a;
-				var y = _v0.b;
-				return A2(
-					$elm$core$List$map,
-					function (z) {
-						return _Utils_Tuple3(x, y, z);
-					},
-					A2($elm$core$List$range, 0, 3));
+var $author$project$View$Block$toHtml = F2(
+	function (attrs, block) {
+		return A2(
+			$author$project$View$Block$fromPos,
+			$author$project$Block$toSprite(block),
+			attrs);
+	});
+var $author$project$Game$get = F2(
+	function (_v0, board) {
+		var x = _v0.a;
+		var y = _v0.b;
+		var z = _v0.c;
+		return A2(
+			$elm$core$Maybe$andThen,
+			function (_v1) {
+				var blocks = _v1.blocks;
+				return A2($elm$core$Dict$get, z, blocks);
 			},
 			A2(
-				$elm$core$List$concatMap,
-				function (y) {
+				$elm$core$Dict$get,
+				_Utils_Tuple2(x, y),
+				board.dict));
+	});
+var $author$project$View$Board$toHtml = function (board) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'position', 'relative')
+			]),
+		A2(
+			$elm$core$List$map,
+			function (_v1) {
+				var _v2 = _v1.a;
+				var x = _v2.a;
+				var y = _v2.b;
+				var z = _v2.c;
+				var block = _v1.b;
+				var _v3 = $author$project$View$Board$toIsomatricPos(
+					_Utils_Tuple3(x, y, z - board.maxZ));
+				var left = _v3.a;
+				var top = _v3.b;
+				return A2(
+					$author$project$View$Block$toHtml,
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$Attributes$style,
+							'top',
+							$elm$core$String$fromInt(top) + 'px'),
+							A2(
+							$elm$html$Html$Attributes$style,
+							'left',
+							$elm$core$String$fromInt(left) + 'px'),
+							A2($elm$html$Html$Attributes$style, 'position', 'absolute')
+						]),
+					block);
+			},
+			A2(
+				$elm$core$List$filterMap,
+				function (pos) {
 					return A2(
-						$elm$core$List$map,
-						$elm$core$Tuple$pair(y),
-						A2($elm$core$List$range, 0, 3));
+						$elm$core$Maybe$map,
+						$elm$core$Tuple$pair(pos),
+						A2($author$project$Game$get, pos, board));
 				},
-				A2($elm$core$List$range, 0, 3)))));
+				A2(
+					$elm$core$List$concatMap,
+					function (_v0) {
+						var x = _v0.a;
+						var y = _v0.b;
+						return A2(
+							$elm$core$List$map,
+							function (z) {
+								return _Utils_Tuple3(x, y, z);
+							},
+							A2($elm$core$List$range, 1, board.maxZ));
+					},
+					A2(
+						$elm$core$List$concatMap,
+						function (y) {
+							return A2(
+								$elm$core$List$map,
+								$elm$core$Tuple$pair(y),
+								A2($elm$core$List$range, 0, 3));
+						},
+						A2($elm$core$List$range, 0, 3))))));
+};
 var $author$project$Main$NewGame = {$: 'NewGame'};
 var $author$project$View$Overlay$asFullScreenOverlay = function (attrs) {
 	return $Orasund$elm_layout$Layout$el(
@@ -7127,20 +7476,6 @@ var $author$project$View$Overlay$asFullScreenOverlay = function (attrs) {
 					A2($elm$html$Html$Attributes$style, 'inset', '0 0'),
 					A2($elm$html$Html$Attributes$style, 'height', '100%'),
 					A2($elm$html$Html$Attributes$style, 'width', '100%')
-				]),
-			attrs));
-};
-var $Orasund$elm_layout$Layout$alignAtCenter = A2($elm$html$Html$Attributes$style, 'align-items', 'center');
-var $Orasund$elm_layout$Layout$contentCentered = A2($elm$html$Html$Attributes$style, 'justify-content', 'center');
-var $Orasund$elm_layout$Layout$centered = _List_fromArray(
-	[$Orasund$elm_layout$Layout$contentCentered, $Orasund$elm_layout$Layout$alignAtCenter]);
-var $Orasund$elm_layout$Layout$column = function (attrs) {
-	return $elm$html$Html$div(
-		_Utils_ap(
-			_List_fromArray(
-				[
-					A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-					A2($elm$html$Html$Attributes$style, 'flex-direction', 'column')
 				]),
 			attrs));
 };
@@ -7222,18 +7557,28 @@ var $author$project$View$viewportMeta = function () {
 		_List_Nil);
 }();
 var $author$project$Main$view = function (model) {
-	var content = $author$project$View$Board$toHtml;
+	var content = A2(
+		$Orasund$elm_layout$Layout$column,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'width', '100%')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$Orasund$elm_layout$Layout$el,
+				$Orasund$elm_layout$Layout$centered,
+				A2($author$project$View$Block$toHtml, _List_Nil, model.game.nextBlock)),
+				A2(
+				$author$project$View$Board$selection,
+				{onSelect: $author$project$Main$Place},
+				model.game.board),
+				$author$project$View$Board$toHtml(model.game.board)
+			]));
 	return {
 		body: _List_fromArray(
 			[
 				$author$project$View$viewportMeta,
-				A2(
-				$Orasund$elm_layout$Layout$textButton,
-				_List_Nil,
-				{
-					label: 'Play Sound',
-					onPress: $elm$core$Maybe$Just($author$project$Main$SoundRequested)
-				}),
 				A2(
 				$elm$html$Html$div,
 				_List_fromArray(

@@ -55,6 +55,12 @@ body {
     padding: var(--space);
 }
 
+.as-square {
+    clip-path: path('M 48 0 l 48 24 l -48 24 l -48 -24 z');
+    width: 96px;
+    height: 48px;
+}
+
 button {
     border: 0;
     background-color: var(--primary-color);

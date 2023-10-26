@@ -13,6 +13,7 @@ import Port
 import PortDefinition exposing (FromElm(..), ToElm(..))
 import Random exposing (Generator, Seed)
 import View
+import View.Block
 import View.Board
 import View.Overlay
 
@@ -30,6 +31,7 @@ type Msg
     | SoundRequested
     | Received (Result Json.Decode.Error ToElm)
     | GotSeed Seed
+    | Place ( Int, Int )
 
 
 apply : Model -> Generator Model -> Model
@@ -101,6 +103,12 @@ update msg model =
         SetOverlay maybeOverlay ->
             model |> setOverlay maybeOverlay |> withNoCmd
 
+        Place pos ->
+            Game.place pos model.game
+                |> Random.map (\game -> { model | game = game })
+                |> apply model
+                |> withNoCmd
+
 
 viewOverlay : Model -> Overlay -> Html Msg
 viewOverlay _ overlay =
@@ -119,15 +127,19 @@ view :
 view model =
     let
         content =
-            View.Board.toHtml
+            [ View.Block.toHtml [] model.game.nextBlock
+                |> Layout.el Layout.centered
+            , View.Board.selection
+                { onSelect = Place }
+                model.game.board
+            , View.Board.toHtml
+                model.game.board
+            ]
+                |> Layout.column [ Html.Attributes.style "width" "100%" ]
     in
     { title = Config.title
     , body =
         [ View.viewportMeta
-        , Layout.textButton []
-            { label = "Play Sound"
-            , onPress = SoundRequested |> Just
-            }
 
         --, View.stylesheet
         , model.overlay

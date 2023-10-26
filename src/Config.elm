@@ -27,7 +27,7 @@ title =
 
 zoom : number
 zoom =
-    4
+    6
 
 
 spriteHeight : number

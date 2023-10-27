@@ -48,7 +48,6 @@ body {
     background-color: var(--background-color);
     border-radius: var(--space);
     box-sizing: border-box;
-    overflow: hidden;
 }
 
 .content {

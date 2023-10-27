@@ -4508,6 +4508,52 @@ var _Bitwise_shiftRightZfBy = F2(function(offset, a)
 {
 	return a >>> offset;
 });
+
+
+
+function _Time_now(millisToPosix)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		callback(_Scheduler_succeed(millisToPosix(Date.now())));
+	});
+}
+
+var _Time_setInterval = F2(function(interval, task)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		var id = setInterval(function() { _Scheduler_rawSpawn(task); }, interval);
+		return function() { clearInterval(id); };
+	});
+});
+
+function _Time_here()
+{
+	return _Scheduler_binding(function(callback)
+	{
+		callback(_Scheduler_succeed(
+			A2($elm$time$Time$customZone, -(new Date().getTimezoneOffset()), _List_Nil)
+		));
+	});
+}
+
+
+function _Time_getZoneName()
+{
+	return _Scheduler_binding(function(callback)
+	{
+		try
+		{
+			var name = $elm$time$Time$Name(Intl.DateTimeFormat().resolvedOptions().timeZone);
+		}
+		catch (e)
+		{
+			var name = $elm$time$Time$Offset(new Date().getTimezoneOffset());
+		}
+		callback(_Scheduler_succeed(name));
+	});
+}
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -5297,12 +5343,19 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$document = _Browser_document;
+var $author$project$Main$GotSeed = function (a) {
+	return {$: 'GotSeed', a: a};
+};
 var $author$project$PortDefinition$RegisterSounds = function (a) {
 	return {$: 'RegisterSounds', a: a};
+};
+var $author$project$Overlay$Shop = function (a) {
+	return {$: 'Shop', a: a};
 };
 var $author$project$Gen$Sound$ClickButton = {$: 'ClickButton'};
 var $author$project$Gen$Sound$asList = _List_fromArray(
 	[$author$project$Gen$Sound$ClickButton]);
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $dillonkearns$elm_ts_json$TsJson$Encode$encoder = F2(
 	function (_v0, input) {
 		var encodeFn = _v0.a;
@@ -6801,6 +6854,9 @@ var $author$project$Port$fromElm = function (value) {
 	return $author$project$Port$interopFromElm(
 		A3($elm$core$Basics$apR, $author$project$PortDefinition$interop.fromElm, $dillonkearns$elm_ts_json$TsJson$Encode$encoder, value));
 };
+var $elm$random$Random$Generate = function (a) {
+	return {$: 'Generate', a: a};
+};
 var $elm$random$Random$Seed = F2(
 	function (a, b) {
 		return {$: 'Seed', a: a, b: b};
@@ -6820,58 +6876,61 @@ var $elm$random$Random$initialSeed = function (x) {
 	return $elm$random$Random$next(
 		A2($elm$random$Random$Seed, state2, incr));
 };
-var $author$project$Block$BrickWall = {$: 'BrickWall'};
-var $author$project$Game$new = {
-	board: {dict: $elm$core$Dict$empty, maxZ: 0},
-	nextBlock: $author$project$Block$BrickWall
+var $elm$time$Time$Name = function (a) {
+	return {$: 'Name', a: a};
 };
-var $author$project$Main$init = function (_v0) {
-	return _Utils_Tuple2(
-		{
-			game: $author$project$Game$new,
-			overlay: $elm$core$Maybe$Nothing,
-			seed: $elm$random$Random$initialSeed(42)
-		},
-		$author$project$Port$fromElm(
-			$author$project$PortDefinition$RegisterSounds($author$project$Gen$Sound$asList)));
+var $elm$time$Time$Offset = function (a) {
+	return {$: 'Offset', a: a};
 };
-var $author$project$Main$Received = function (a) {
-	return {$: 'Received', a: a};
+var $elm$time$Time$Zone = F2(
+	function (a, b) {
+		return {$: 'Zone', a: a, b: b};
+	});
+var $elm$time$Time$customZone = $elm$time$Time$Zone;
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
 };
-var $elm$core$Platform$Sub$map = _Platform_map;
-var $elm$json$Json$Decode$decodeValue = _Json_run;
-var $author$project$Port$interopToElm = _Platform_incomingPort('interopToElm', $elm$json$Json$Decode$value);
-var $author$project$Port$toElm = $author$project$Port$interopToElm(
-	$elm$json$Json$Decode$decodeValue(
-		$dillonkearns$elm_ts_json$TsJson$Decode$decoder($author$project$PortDefinition$interop.toElm)));
-var $author$project$Main$subscriptions = function (_v0) {
-	return A2($elm$core$Platform$Sub$map, $author$project$Main$Received, $author$project$Port$toElm);
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
+var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
+var $elm$time$Time$posixToMillis = function (_v0) {
+	var millis = _v0.a;
+	return millis;
 };
-var $author$project$PortDefinition$PlaySound = function (a) {
-	return {$: 'PlaySound', a: a};
-};
+var $elm$random$Random$init = A2(
+	$elm$core$Task$andThen,
+	function (time) {
+		return $elm$core$Task$succeed(
+			$elm$random$Random$initialSeed(
+				$elm$time$Time$posixToMillis(time)));
+	},
+	$elm$time$Time$now);
 var $elm$random$Random$step = F2(
 	function (_v0, seed) {
 		var generator = _v0.a;
 		return generator(seed);
 	});
-var $author$project$Main$apply = F2(
-	function (_v0, generator) {
-		var seed = _v0.seed;
-		var _v1 = A2($elm$random$Random$step, generator, seed);
-		var model = _v1.a;
-		var newSeed = _v1.b;
-		return _Utils_update(
-			model,
-			{seed: newSeed});
+var $elm$random$Random$onEffects = F3(
+	function (router, commands, seed) {
+		if (!commands.b) {
+			return $elm$core$Task$succeed(seed);
+		} else {
+			var generator = commands.a.a;
+			var rest = commands.b;
+			var _v1 = A2($elm$random$Random$step, generator, seed);
+			var value = _v1.a;
+			var newSeed = _v1.b;
+			return A2(
+				$elm$core$Task$andThen,
+				function (_v2) {
+					return A3($elm$random$Random$onEffects, router, rest, newSeed);
+				},
+				A2($elm$core$Platform$sendToApp, router, value));
+		}
 	});
-var $author$project$Main$gotSeed = F2(
-	function (seed, model) {
-		return _Utils_update(
-			model,
-			{seed: seed});
+var $elm$random$Random$onSelfMsg = F3(
+	function (_v0, _v1, seed) {
+		return $elm$core$Task$succeed(seed);
 	});
-var $elm$core$Debug$log = _Debug_log;
 var $elm$random$Random$Generator = function (a) {
 	return {$: 'Generator', a: a};
 };
@@ -6888,6 +6947,191 @@ var $elm$random$Random$map = F2(
 					seed1);
 			});
 	});
+var $elm$random$Random$cmdMap = F2(
+	function (func, _v0) {
+		var generator = _v0.a;
+		return $elm$random$Random$Generate(
+			A2($elm$random$Random$map, func, generator));
+	});
+_Platform_effectManagers['Random'] = _Platform_createManager($elm$random$Random$init, $elm$random$Random$onEffects, $elm$random$Random$onSelfMsg, $elm$random$Random$cmdMap);
+var $elm$random$Random$command = _Platform_leaf('Random');
+var $elm$random$Random$generate = F2(
+	function (tagger, generator) {
+		return $elm$random$Random$command(
+			$elm$random$Random$Generate(
+				A2($elm$random$Random$map, tagger, generator)));
+	});
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm$core$Bitwise$xor = _Bitwise_xor;
+var $elm$random$Random$peel = function (_v0) {
+	var state = _v0.a;
+	var word = (state ^ (state >>> ((state >>> 28) + 4))) * 277803737;
+	return ((word >>> 22) ^ word) >>> 0;
+};
+var $elm$random$Random$int = F2(
+	function (a, b) {
+		return $elm$random$Random$Generator(
+			function (seed0) {
+				var _v0 = (_Utils_cmp(a, b) < 0) ? _Utils_Tuple2(a, b) : _Utils_Tuple2(b, a);
+				var lo = _v0.a;
+				var hi = _v0.b;
+				var range = (hi - lo) + 1;
+				if (!((range - 1) & range)) {
+					return _Utils_Tuple2(
+						(((range - 1) & $elm$random$Random$peel(seed0)) >>> 0) + lo,
+						$elm$random$Random$next(seed0));
+				} else {
+					var threshhold = (((-range) >>> 0) % range) >>> 0;
+					var accountForBias = function (seed) {
+						accountForBias:
+						while (true) {
+							var x = $elm$random$Random$peel(seed);
+							var seedN = $elm$random$Random$next(seed);
+							if (_Utils_cmp(x, threshhold) < 0) {
+								var $temp$seed = seedN;
+								seed = $temp$seed;
+								continue accountForBias;
+							} else {
+								return _Utils_Tuple2((x % range) + lo, seedN);
+							}
+						}
+					};
+					return accountForBias(seed0);
+				}
+			});
+	});
+var $elm$random$Random$map3 = F4(
+	function (func, _v0, _v1, _v2) {
+		var genA = _v0.a;
+		var genB = _v1.a;
+		var genC = _v2.a;
+		return $elm$random$Random$Generator(
+			function (seed0) {
+				var _v3 = genA(seed0);
+				var a = _v3.a;
+				var seed1 = _v3.b;
+				var _v4 = genB(seed1);
+				var b = _v4.a;
+				var seed2 = _v4.b;
+				var _v5 = genC(seed2);
+				var c = _v5.a;
+				var seed3 = _v5.b;
+				return _Utils_Tuple2(
+					A3(func, a, b, c),
+					seed3);
+			});
+	});
+var $elm$core$Bitwise$or = _Bitwise_or;
+var $elm$random$Random$independentSeed = $elm$random$Random$Generator(
+	function (seed0) {
+		var makeIndependentSeed = F3(
+			function (state, b, c) {
+				return $elm$random$Random$next(
+					A2($elm$random$Random$Seed, state, (1 | (b ^ c)) >>> 0));
+			});
+		var gen = A2($elm$random$Random$int, 0, 4294967295);
+		return A2(
+			$elm$random$Random$step,
+			A4($elm$random$Random$map3, makeIndependentSeed, gen, gen, gen),
+			seed0);
+	});
+var $author$project$Game$new = {
+	board: {dict: $elm$core$Dict$empty, maxZ: 0},
+	next: _List_Nil
+};
+var $author$project$Main$init = function (_v0) {
+	return _Utils_Tuple2(
+		{
+			game: $author$project$Game$new,
+			overlay: $elm$core$Maybe$Just(
+				$author$project$Overlay$Shop(
+					{cart: _List_Nil})),
+			seed: $elm$random$Random$initialSeed(42)
+		},
+		$elm$core$Platform$Cmd$batch(
+			_List_fromArray(
+				[
+					$author$project$Port$fromElm(
+					$author$project$PortDefinition$RegisterSounds($author$project$Gen$Sound$asList)),
+					A2($elm$random$Random$generate, $author$project$Main$GotSeed, $elm$random$Random$independentSeed)
+				])));
+};
+var $author$project$Main$Received = function (a) {
+	return {$: 'Received', a: a};
+};
+var $elm$core$Platform$Sub$map = _Platform_map;
+var $elm$json$Json$Decode$decodeValue = _Json_run;
+var $author$project$Port$interopToElm = _Platform_incomingPort('interopToElm', $elm$json$Json$Decode$value);
+var $author$project$Port$toElm = $author$project$Port$interopToElm(
+	$elm$json$Json$Decode$decodeValue(
+		$dillonkearns$elm_ts_json$TsJson$Decode$decoder($author$project$PortDefinition$interop.toElm)));
+var $author$project$Main$subscriptions = function (_v0) {
+	return A2($elm$core$Platform$Sub$map, $author$project$Main$Received, $author$project$Port$toElm);
+};
+var $author$project$PortDefinition$PlaySound = function (a) {
+	return {$: 'PlaySound', a: a};
+};
+var $author$project$Main$apply = F2(
+	function (_v0, generator) {
+		var seed = _v0.seed;
+		var _v1 = A2($elm$random$Random$step, generator, seed);
+		var model = _v1.a;
+		var newSeed = _v1.b;
+		return _Utils_update(
+			model,
+			{seed: newSeed});
+	});
+var $author$project$Block$BrickStairsLeft = {$: 'BrickStairsLeft'};
+var $author$project$Block$BrickStairsRight = {$: 'BrickStairsRight'};
+var $author$project$Block$WoodChairLeft = {$: 'WoodChairLeft'};
+var $author$project$Block$WoodChairRight = {$: 'WoodChairRight'};
+var $author$project$Block$flip = function (block) {
+	switch (block.$) {
+		case 'WoodChairLeft':
+			return $author$project$Block$WoodChairRight;
+		case 'WoodChairRight':
+			return $author$project$Block$WoodChairLeft;
+		case 'BrickStairsLeft':
+			return $author$project$Block$BrickStairsRight;
+		case 'BrickStairsRight':
+			return $author$project$Block$BrickStairsLeft;
+		default:
+			return block;
+	}
+};
+var $author$project$Structure$flip = function (structure) {
+	var flipPos = function (_v1) {
+		var x = _v1.a;
+		var y = _v1.b;
+		var z = _v1.c;
+		return _Utils_Tuple3(y, x, z);
+	};
+	return {
+		blocks: A2(
+			$elm$core$List$map,
+			function (_v0) {
+				var pos = _v0.a;
+				var block = _v0.b;
+				return _Utils_Tuple2(
+					flipPos(pos),
+					$author$project$Block$flip(block));
+			},
+			structure.blocks),
+		dimensions: flipPos(structure.dimensions)
+	};
+};
+var $elm$core$Basics$ge = _Utils_ge;
+var $author$project$Main$gotSeed = F2(
+	function (seed, model) {
+		return _Utils_update(
+			model,
+			{seed: seed});
+	});
+var $elm$core$Debug$log = _Debug_log;
+var $author$project$Config$maxCartSize = 10;
 var $author$project$Main$setOverlay = F2(
 	function (maybeOverlay, model) {
 		return _Utils_update(
@@ -6902,151 +7146,99 @@ var $author$project$Main$newGame = function (model) {
 			model,
 			{game: $author$project$Game$new}));
 };
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Block$Flower = {$: 'Flower'};
-var $author$project$Block$WoodWall = {$: 'WoodWall'};
-var $author$project$Block$asList = _List_fromArray(
-	[$author$project$Block$BrickWall, $author$project$Block$WoodWall, $author$project$Block$Flower]);
+var $author$project$Game$place = F2(
+	function (pos, game) {
+		var _v0 = game.next;
+		if (_v0.b) {
+			var head = _v0.a;
+			var tail = _v0.b;
+			var _v1 = pos;
+			var x = _v1.a;
+			var y = _v1.b;
+			var z = A2(
+				$elm$core$Maybe$withDefault,
+				0,
+				$elm$core$List$maximum(
+					A2(
+						$elm$core$List$filterMap,
+						function (_v5) {
+							var _v6 = _v5.a;
+							var relX = _v6.a;
+							var relY = _v6.b;
+							var relZ = _v6.c;
+							return (!relZ) ? $elm$core$Maybe$Just(
+								1 + A2(
+									$elm$core$Maybe$withDefault,
+									0,
+									A2(
+										$elm$core$Maybe$map,
+										function ($) {
+											return $.maxZ;
+										},
+										A2(
+											$elm$core$Dict$get,
+											_Utils_Tuple2(x + relX, y + relY),
+											game.board.dict)))) : $elm$core$Maybe$Nothing;
+						},
+						head.blocks)));
+			var _v2 = head.dimensions;
+			var dimZ = _v2.c;
+			return _Utils_update(
+				game,
+				{
+					board: {
+						dict: A3(
+							$elm$core$List$foldl,
+							function (_v3) {
+								var _v4 = _v3.a;
+								var relX = _v4.a;
+								var relY = _v4.b;
+								var relZ = _v4.c;
+								var block = _v3.b;
+								return A2(
+									$elm$core$Dict$update,
+									_Utils_Tuple2(x + relX, y + relY),
+									function (maybe) {
+										return $elm$core$Maybe$Just(
+											function (elem) {
+												return {
+													blocks: A3($elm$core$Dict$insert, z + relZ, block, elem.blocks),
+													maxZ: z + relZ
+												};
+											}(
+												A2(
+													$elm$core$Maybe$withDefault,
+													{blocks: $elm$core$Dict$empty, maxZ: 0},
+													maybe)));
+									});
+							},
+							game.board.dict,
+							head.blocks),
+						maxZ: A2($elm$core$Basics$max, game.board.maxZ, z + dimZ)
+					},
+					next: tail
+				});
+		} else {
+			return game;
+		}
+	});
 var $elm$random$Random$constant = function (value) {
 	return $elm$random$Random$Generator(
 		function (seed) {
 			return _Utils_Tuple2(value, seed);
 		});
 };
-var $elm$random$Random$addOne = function (value) {
-	return _Utils_Tuple2(1, value);
-};
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var $elm$core$Basics$abs = function (n) {
-	return (n < 0) ? (-n) : n;
-};
-var $elm$core$Bitwise$and = _Bitwise_and;
-var $elm$core$Bitwise$xor = _Bitwise_xor;
-var $elm$random$Random$peel = function (_v0) {
-	var state = _v0.a;
-	var word = (state ^ (state >>> ((state >>> 28) + 4))) * 277803737;
-	return ((word >>> 22) ^ word) >>> 0;
-};
-var $elm$random$Random$float = F2(
-	function (a, b) {
-		return $elm$random$Random$Generator(
-			function (seed0) {
-				var seed1 = $elm$random$Random$next(seed0);
-				var range = $elm$core$Basics$abs(b - a);
-				var n1 = $elm$random$Random$peel(seed1);
-				var n0 = $elm$random$Random$peel(seed0);
-				var lo = (134217727 & n1) * 1.0;
-				var hi = (67108863 & n0) * 1.0;
-				var val = ((hi * 134217728.0) + lo) / 9007199254740992.0;
-				var scaled = (val * range) + a;
-				return _Utils_Tuple2(
-					scaled,
-					$elm$random$Random$next(seed1));
-			});
-	});
-var $elm$random$Random$getByWeight = F3(
-	function (_v0, others, countdown) {
-		getByWeight:
-		while (true) {
-			var weight = _v0.a;
-			var value = _v0.b;
-			if (!others.b) {
-				return value;
-			} else {
-				var second = others.a;
-				var otherOthers = others.b;
-				if (_Utils_cmp(
-					countdown,
-					$elm$core$Basics$abs(weight)) < 1) {
-					return value;
-				} else {
-					var $temp$_v0 = second,
-						$temp$others = otherOthers,
-						$temp$countdown = countdown - $elm$core$Basics$abs(weight);
-					_v0 = $temp$_v0;
-					others = $temp$others;
-					countdown = $temp$countdown;
-					continue getByWeight;
-				}
-			}
-		}
-	});
-var $elm$core$List$sum = function (numbers) {
-	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
-};
-var $elm$random$Random$weighted = F2(
-	function (first, others) {
-		var normalize = function (_v0) {
-			var weight = _v0.a;
-			return $elm$core$Basics$abs(weight);
-		};
-		var total = normalize(first) + $elm$core$List$sum(
-			A2($elm$core$List$map, normalize, others));
+var $author$project$Game$setNext = F2(
+	function (list, game) {
 		return A2(
 			$elm$random$Random$map,
-			A2($elm$random$Random$getByWeight, first, others),
-			A2($elm$random$Random$float, 0, total));
-	});
-var $elm$random$Random$uniform = F2(
-	function (value, valueList) {
-		return A2(
-			$elm$random$Random$weighted,
-			$elm$random$Random$addOne(value),
-			A2($elm$core$List$map, $elm$random$Random$addOne, valueList));
-	});
-var $author$project$Game$place = F2(
-	function (pos, game) {
-		return A2(
-			$elm$random$Random$map,
-			function (block) {
-				var z = 1 + A2(
-					$elm$core$Maybe$withDefault,
-					0,
-					A2(
-						$elm$core$Maybe$map,
-						function ($) {
-							return $.maxZ;
-						},
-						A2($elm$core$Dict$get, pos, game.board.dict)));
+			function (next) {
 				return _Utils_update(
 					game,
-					{
-						board: {
-							dict: A3(
-								$elm$core$Dict$update,
-								pos,
-								function (maybe) {
-									return $elm$core$Maybe$Just(
-										function (elem) {
-											return {
-												blocks: A3($elm$core$Dict$insert, z, game.nextBlock, elem.blocks),
-												maxZ: z
-											};
-										}(
-											A2(
-												$elm$core$Maybe$withDefault,
-												{blocks: $elm$core$Dict$empty, maxZ: 0},
-												maybe)));
-								},
-								game.board.dict),
-							maxZ: A2($elm$core$Basics$max, game.board.maxZ, z)
-						},
-						nextBlock: block
-					});
+					{next: next});
 			},
-			function () {
-				var _v0 = $author$project$Block$asList;
-				if (_v0.b) {
-					var head = _v0.a;
-					var tail = _v0.b;
-					return A2($elm$random$Random$uniform, head, tail);
-				} else {
-					return $elm$random$Random$constant($author$project$Block$BrickWall);
-				}
-			}());
+			$elm$random$Random$constant(list));
 	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
@@ -7081,28 +7273,85 @@ var $author$project$Main$update = F2(
 				var maybeOverlay = msg.a;
 				return withNoCmd(
 					A2($author$project$Main$setOverlay, maybeOverlay, model));
-			default:
+			case 'Place':
 				var pos = msg.a;
 				return withNoCmd(
-					A2(
-						$author$project$Main$apply,
-						model,
-						A2(
-							$elm$random$Random$map,
+					function (game) {
+						return _Utils_update(
+							model,
+							{
+								game: game,
+								overlay: _Utils_eq(game.next, _List_Nil) ? $elm$core$Maybe$Just(
+									$author$project$Overlay$Shop(
+										{cart: _List_Nil})) : $elm$core$Maybe$Nothing
+							});
+					}(
+						A2($author$project$Game$place, pos, model.game)));
+			case 'AddToCart':
+				var structure = msg.a;
+				var _v3 = model.overlay;
+				if (_v3.$ === 'Just') {
+					var shop = _v3.a.a;
+					return withNoCmd(
+						function (cart) {
+							return (_Utils_cmp(
+								$elm$core$List$length(cart),
+								$author$project$Config$maxCartSize) > -1) ? A2(
+								$author$project$Main$apply,
+								model,
+								A2(
+									$elm$random$Random$map,
+									function (game) {
+										return _Utils_update(
+											model,
+											{game: game, overlay: $elm$core$Maybe$Nothing});
+									},
+									A2($author$project$Game$setNext, cart, model.game))) : _Utils_update(
+								model,
+								{
+									overlay: $elm$core$Maybe$Just(
+										$author$project$Overlay$Shop(
+											{cart: cart}))
+								});
+						}(
+							A2($elm$core$List$cons, structure, shop.cart)));
+				} else {
+					return withNoCmd(model);
+				}
+			default:
+				var _v4 = model.game.next;
+				if (_v4.b) {
+					var head = _v4.a;
+					var tail = _v4.b;
+					return withNoCmd(
+						function (game) {
+							return _Utils_update(
+								model,
+								{game: game});
+						}(
 							function (game) {
 								return _Utils_update(
-									model,
-									{game: game});
-							},
-							A2($author$project$Game$place, pos, model.game))));
+									game,
+									{
+										next: A2(
+											$elm$core$List$cons,
+											$author$project$Structure$flip(head),
+											tail)
+									});
+							}(model.game)));
+				} else {
+					return withNoCmd(model);
+				}
 		}
 	});
+var $author$project$Main$FlipStructure = {$: 'FlipStructure'};
 var $author$project$Main$Place = function (a) {
 	return {$: 'Place', a: a};
 };
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $Orasund$elm_layout$Layout$alignAtCenter = A2($elm$html$Html$Attributes$style, 'align-items', 'center');
+var $Orasund$elm_layout$Layout$asEl = A2($elm$html$Html$Attributes$style, 'display', 'flex');
 var $Orasund$elm_layout$Layout$contentCentered = A2($elm$html$Html$Attributes$style, 'justify-content', 'center');
 var $Orasund$elm_layout$Layout$centered = _List_fromArray(
 	[$Orasund$elm_layout$Layout$contentCentered, $Orasund$elm_layout$Layout$alignAtCenter]);
@@ -7137,6 +7386,19 @@ var $Orasund$elm_layout$Layout$el = F2(
 				[content]));
 	});
 var $elm$core$String$fromFloat = _String_fromNumber;
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $Orasund$elm_layout$Layout$none = $elm$html$Html$text('');
+var $author$project$Config$normalZoom = {zoom: 6};
 var $author$project$Config$screenMinHeight = 700;
 var $author$project$Config$screenMinWidth = 400;
 var $elm$core$Maybe$andThen = F2(
@@ -7173,10 +7435,19 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 	});
 var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
 var $author$project$Block$isSolid = function (block) {
-	if (block.$ === 'Flower') {
-		return false;
-	} else {
-		return true;
+	switch (block.$) {
+		case 'Flower':
+			return false;
+		case 'WoodChairLeft':
+			return false;
+		case 'WoodChairRight':
+			return false;
+		case 'BrickStairsLeft':
+			return false;
+		case 'BrickStairsRight':
+			return false;
+		default:
+			return true;
 	}
 };
 var $elm$core$Basics$not = _Basics_not;
@@ -7185,6 +7456,12 @@ var $elm$core$Tuple$pair = F2(
 		return _Utils_Tuple2(a, b);
 	});
 var $author$project$Pixel$pixelated = A2($elm$html$Html$Attributes$style, 'image-rendering', 'pixelated');
+var $author$project$Config$spriteHeight = function (args) {
+	return 18 * args.zoom;
+};
+var $author$project$Config$squareHeight = function (args) {
+	return 10 * args.zoom;
+};
 var $elm$virtual_dom$VirtualDom$attribute = F2(
 	function (key, value) {
 		return A2(
@@ -7232,8 +7509,6 @@ var $Orasund$elm_layout$Layout$asButton = function (args) {
 				args.onPress)));
 };
 var $elm$html$Html$button = _VirtualDom_node('button');
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $Orasund$elm_layout$Layout$textButton = F2(
 	function (attrs, args) {
 		return A2(
@@ -7246,23 +7521,31 @@ var $Orasund$elm_layout$Layout$textButton = F2(
 					$elm$html$Html$text(args.label)
 				]));
 	});
-var $author$project$Config$zoom = 6;
-var $author$project$Config$spriteHeight = 18 * $author$project$Config$zoom;
-var $author$project$Config$spriteWidth = 16 * $author$project$Config$zoom;
-var $author$project$Config$squareHeight = 10 * $author$project$Config$zoom;
-var $author$project$View$Board$toIsomatricPos = function (_v0) {
-	var x = _v0.a;
-	var y = _v0.b;
-	var z = _v0.c;
-	return _Utils_Tuple2(((((y * $author$project$Config$spriteWidth) / 2) | 0) - (((x * $author$project$Config$spriteWidth) / 2) | 0)) + 140, (((((y * ($author$project$Config$spriteHeight - $author$project$Config$squareHeight)) / 2) | 0) + (((x * ($author$project$Config$spriteHeight - $author$project$Config$squareHeight)) / 2) | 0)) - (z * ($author$project$Config$squareHeight - $author$project$Config$zoom))) + ($author$project$Config$spriteHeight * 2));
+var $author$project$Config$spriteWidth = function (args) {
+	return 16 * args.zoom;
 };
+var $author$project$View$Structure$toIsomatricPos = F2(
+	function (zoom, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		var z = _v0.c;
+		return _Utils_Tuple2(
+			((((y * $author$project$Config$spriteWidth(zoom)) / 2) | 0) - (((x * $author$project$Config$spriteWidth(zoom)) / 2) | 0)) - (($author$project$Config$spriteWidth(zoom) / 2) | 0),
+			((((y * ($author$project$Config$spriteHeight(zoom) - $author$project$Config$squareHeight(zoom))) / 2) | 0) + (((x * ($author$project$Config$spriteHeight(zoom) - $author$project$Config$squareHeight(zoom))) / 2) | 0)) - (z * ($author$project$Config$squareHeight(zoom) - zoom.zoom)));
+	});
 var $author$project$View$Board$selection = F2(
 	function (args, board) {
+		var zoom = $author$project$Config$normalZoom;
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
 				[
-					A2($elm$html$Html$Attributes$style, 'position', 'relative')
+					A2($elm$html$Html$Attributes$style, 'position', 'relative'),
+					A2(
+					$elm$html$Html$Attributes$style,
+					'height',
+					$elm$core$String$fromInt(
+						(4 * $author$project$Config$spriteHeight(zoom)) - (4 * $author$project$Config$squareHeight(zoom))) + 'px')
 				]),
 			A2(
 				$elm$core$List$map,
@@ -7286,8 +7569,10 @@ var $author$project$View$Board$selection = F2(
 									$elm$core$Dict$get,
 									_Utils_Tuple2(x, y),
 									board.dict))));
-					var _v1 = $author$project$View$Board$toIsomatricPos(
-						_Utils_Tuple3(x, y, 4));
+					var _v1 = A2(
+						$author$project$View$Structure$toIsomatricPos,
+						zoom,
+						_Utils_Tuple3(x, y, 0));
 					var left = _v1.a;
 					var top = _v1.b;
 					return A2(
@@ -7329,6 +7614,53 @@ var $elm$core$List$singleton = function (value) {
 		[value]);
 };
 var $author$project$Config$title = 'Game Template';
+var $author$project$Structure$fromBlocks = function (list) {
+	var maxBy = function (fun) {
+		return 1 + A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			$elm$core$List$maximum(
+				A2($elm$core$List$map, fun, list)));
+	};
+	return {
+		blocks: list,
+		dimensions: _Utils_Tuple3(
+			maxBy(
+				function (_v0) {
+					var _v1 = _v0.a;
+					var x = _v1.a;
+					return x;
+				}),
+			maxBy(
+				function (_v2) {
+					var _v3 = _v2.a;
+					var y = _v3.b;
+					return y;
+				}),
+			maxBy(
+				function (_v4) {
+					var _v5 = _v4.a;
+					var z = _v5.c;
+					return z;
+				}))
+	};
+};
+var $author$project$Game$get = F2(
+	function (_v0, board) {
+		var x = _v0.a;
+		var y = _v0.b;
+		var z = _v0.c;
+		return A2(
+			$elm$core$Maybe$andThen,
+			function (_v1) {
+				var blocks = _v1.blocks;
+				return A2($elm$core$Dict$get, z, blocks);
+			},
+			A2(
+				$elm$core$Dict$get,
+				_Utils_Tuple2(x, y),
+				board.dict));
+	});
 var $author$project$Pixel$spriteImage = F2(
 	function (attrs, args) {
 		var _v0 = args.pos;
@@ -7361,81 +7693,123 @@ var $author$project$Pixel$spriteImage = F2(
 				attrs),
 			_List_Nil);
 	});
-var $author$project$View$Block$fromPos = F2(
-	function (pos, attrs) {
+var $author$project$View$Block$fromPos = F3(
+	function (zoom, pos, attrs) {
 		return A2(
 			$author$project$Pixel$spriteImage,
 			A2($elm$core$List$cons, $author$project$Pixel$pixelated, attrs),
-			{height: $author$project$Config$spriteHeight, pos: pos, sheetColumns: 2, sheetRows: 2, url: 'assets/spritesheet.png', width: $author$project$Config$spriteWidth});
+			{
+				height: $author$project$Config$spriteHeight(zoom),
+				pos: pos,
+				sheetColumns: 8,
+				sheetRows: 4,
+				url: 'assets/spritesheet.png',
+				width: $author$project$Config$spriteWidth(zoom)
+			});
 	});
 var $author$project$Block$toSprite = function (block) {
 	switch (block.$) {
-		case 'BrickWall':
-			return _Utils_Tuple2(0, 1);
 		case 'WoodWall':
-			return _Utils_Tuple2(0, 0);
-		default:
+			return _Utils_Tuple2(0, 1);
+		case 'WoodTable':
+			return _Utils_Tuple2(1, 1);
+		case 'WoodChairRight':
+			return _Utils_Tuple2(2, 1);
+		case 'WoodChairLeft':
+			return _Utils_Tuple2(3, 1);
+		case 'Flower':
 			return _Utils_Tuple2(1, 0);
+		case 'BrickWall':
+			return _Utils_Tuple2(0, 2);
+		case 'BrickFloor':
+			return _Utils_Tuple2(1, 2);
+		case 'BrickStairsRight':
+			return _Utils_Tuple2(2, 2);
+		case 'BrickStairsLeft':
+			return _Utils_Tuple2(3, 2);
+		case 'WoodCabinetTopLeft':
+			return _Utils_Tuple2(4, 0);
+		case 'WoodCabinetTopRight':
+			return _Utils_Tuple2(5, 0);
+		case 'WoodCabinetBottomLeft':
+			return _Utils_Tuple2(4, 1);
+		default:
+			return _Utils_Tuple2(5, 1);
 	}
 };
-var $author$project$View$Block$toHtml = F2(
-	function (attrs, block) {
-		return A2(
+var $author$project$View$Block$toHtml = F3(
+	function (zoom, attrs, block) {
+		return A3(
 			$author$project$View$Block$fromPos,
+			zoom,
 			$author$project$Block$toSprite(block),
 			attrs);
 	});
-var $author$project$Game$get = F2(
-	function (_v0, board) {
-		var x = _v0.a;
-		var y = _v0.b;
-		var z = _v0.c;
+var $author$project$View$Structure$toHtml = F3(
+	function (zoom, attrs, board) {
+		var _v0 = board.dimensions;
+		var dimX = _v0.a;
+		var dimY = _v0.b;
+		var dimZ = _v0.c;
+		var _v1 = A2(
+			$author$project$View$Structure$toIsomatricPos,
+			zoom,
+			_Utils_Tuple3(dimZ, dimY, (-dimZ) + 1));
+		var width = _v1.a;
+		var height = _v1.b;
 		return A2(
-			$elm$core$Maybe$andThen,
-			function (_v1) {
-				var blocks = _v1.blocks;
-				return A2($elm$core$Dict$get, z, blocks);
-			},
+			$elm$html$Html$div,
+			_Utils_ap(
+				attrs,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'position', 'relative'),
+						A2(
+						$elm$html$Html$Attributes$style,
+						'height',
+						$elm$core$String$fromInt(
+							$author$project$Config$spriteHeight(zoom) + ((dimZ - 1) * $author$project$Config$squareHeight(zoom))) + 'px')
+					])),
 			A2(
-				$elm$core$Dict$get,
-				_Utils_Tuple2(x, y),
-				board.dict));
+				$elm$core$List$map,
+				function (_v2) {
+					var _v3 = _v2.a;
+					var x = _v3.a;
+					var y = _v3.b;
+					var z = _v3.c;
+					var block = _v2.b;
+					var _v4 = A2(
+						$author$project$View$Structure$toIsomatricPos,
+						zoom,
+						_Utils_Tuple3(x, y, (z - dimZ) + 1));
+					var left = _v4.a;
+					var top = _v4.b;
+					return A3(
+						$author$project$View$Block$toHtml,
+						zoom,
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$Attributes$style,
+								'top',
+								$elm$core$String$fromInt(top) + 'px'),
+								A2(
+								$elm$html$Html$Attributes$style,
+								'left',
+								$elm$core$String$fromInt(left) + 'px'),
+								A2($elm$html$Html$Attributes$style, 'position', 'absolute')
+							]),
+						block);
+				},
+				board.blocks));
 	});
 var $author$project$View$Board$toHtml = function (board) {
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				A2($elm$html$Html$Attributes$style, 'position', 'relative')
-			]),
-		A2(
-			$elm$core$List$map,
-			function (_v1) {
-				var _v2 = _v1.a;
-				var x = _v2.a;
-				var y = _v2.b;
-				var z = _v2.c;
-				var block = _v1.b;
-				var _v3 = $author$project$View$Board$toIsomatricPos(
-					_Utils_Tuple3(x, y, z - board.maxZ));
-				var left = _v3.a;
-				var top = _v3.b;
-				return A2(
-					$author$project$View$Block$toHtml,
-					_List_fromArray(
-						[
-							A2(
-							$elm$html$Html$Attributes$style,
-							'top',
-							$elm$core$String$fromInt(top) + 'px'),
-							A2(
-							$elm$html$Html$Attributes$style,
-							'left',
-							$elm$core$String$fromInt(left) + 'px'),
-							A2($elm$html$Html$Attributes$style, 'position', 'absolute')
-						]),
-					block);
-			},
+	var zoom = $author$project$Config$normalZoom;
+	return A3(
+		$author$project$View$Structure$toHtml,
+		zoom,
+		_List_Nil,
+		$author$project$Structure$fromBlocks(
 			A2(
 				$elm$core$List$filterMap,
 				function (pos) {
@@ -7466,7 +7840,9 @@ var $author$project$View$Board$toHtml = function (board) {
 						},
 						A2($elm$core$List$range, 0, 3))))));
 };
-var $author$project$Main$NewGame = {$: 'NewGame'};
+var $author$project$Main$AddToCart = function (a) {
+	return {$: 'AddToCart', a: a};
+};
 var $author$project$View$Overlay$asFullScreenOverlay = function (attrs) {
 	return $Orasund$elm_layout$Layout$el(
 		_Utils_ap(
@@ -7479,6 +7855,96 @@ var $author$project$View$Overlay$asFullScreenOverlay = function (attrs) {
 				]),
 			attrs));
 };
+var $Orasund$elm_layout$Layout$button = F3(
+	function (attrs, args, content) {
+		return A2(
+			$elm$html$Html$button,
+			A2(
+				$elm$core$List$cons,
+				$Orasund$elm_layout$Layout$asEl,
+				_Utils_ap(
+					$Orasund$elm_layout$Layout$asButton(args),
+					attrs)),
+			_List_fromArray(
+				[content]));
+	});
+var $Orasund$elm_layout$Layout$row = function (attrs) {
+	return $elm$html$Html$div(
+		_Utils_ap(
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+					A2($elm$html$Html$Attributes$style, 'flex-direction', 'row'),
+					A2($elm$html$Html$Attributes$style, 'flex-wrap', 'wrap')
+				]),
+			attrs));
+};
+var $author$project$Block$BrickFloor = {$: 'BrickFloor'};
+var $author$project$Block$BrickWall = {$: 'BrickWall'};
+var $author$project$Block$Flower = {$: 'Flower'};
+var $author$project$Block$WoodCabinetBottomLeft = {$: 'WoodCabinetBottomLeft'};
+var $author$project$Block$WoodCabinetBottomRight = {$: 'WoodCabinetBottomRight'};
+var $author$project$Block$WoodCabinetTopLeft = {$: 'WoodCabinetTopLeft'};
+var $author$project$Block$WoodCabinetTopRight = {$: 'WoodCabinetTopRight'};
+var $author$project$Block$WoodTable = {$: 'WoodTable'};
+var $author$project$Block$WoodWall = {$: 'WoodWall'};
+var $author$project$Structure$singleton = function (block) {
+	return $author$project$Structure$fromBlocks(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				_Utils_Tuple3(0, 0, 0),
+				block)
+			]));
+};
+var $author$project$Structure$sets = $elm$core$List$concat(
+	_List_fromArray(
+		[
+			A2(
+			$elm$core$List$map,
+			$author$project$Structure$singleton,
+			_List_fromArray(
+				[$author$project$Block$WoodWall, $author$project$Block$Flower, $author$project$Block$WoodTable, $author$project$Block$WoodChairLeft, $author$project$Block$BrickWall, $author$project$Block$BrickStairsLeft])),
+			_List_fromArray(
+			[
+				$author$project$Structure$fromBlocks(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						_Utils_Tuple3(0, 0, 0),
+						$author$project$Block$BrickWall),
+						_Utils_Tuple2(
+						_Utils_Tuple3(1, 0, 0),
+						$author$project$Block$BrickFloor)
+					])),
+				$author$project$Structure$fromBlocks(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						_Utils_Tuple3(0, 0, 0),
+						$author$project$Block$WoodCabinetBottomLeft),
+						_Utils_Tuple2(
+						_Utils_Tuple3(0, 1, 0),
+						$author$project$Block$WoodCabinetBottomRight),
+						_Utils_Tuple2(
+						_Utils_Tuple3(0, 0, 1),
+						$author$project$Block$WoodCabinetTopLeft),
+						_Utils_Tuple2(
+						_Utils_Tuple3(0, 1, 1),
+						$author$project$Block$WoodCabinetTopRight)
+					])),
+				$author$project$Structure$fromBlocks(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						_Utils_Tuple3(0, 0, 0),
+						$author$project$Block$WoodWall),
+						_Utils_Tuple2(
+						_Utils_Tuple3(1, 0, 0),
+						$author$project$Block$WoodWall)
+					]))
+			])
+		]));
 var $Orasund$elm_layout$Layout$text = F2(
 	function (attrs, content) {
 		return A2(
@@ -7486,7 +7952,8 @@ var $Orasund$elm_layout$Layout$text = F2(
 			attrs,
 			$elm$html$Html$text(content));
 	});
-var $author$project$View$Overlay$gameMenu = function (args) {
+var $author$project$View$Overlay$shop = function (args) {
+	var zoom = {zoom: 3};
 	return A2(
 		$author$project$View$Overlay$asFullScreenOverlay,
 		_Utils_ap(
@@ -7505,38 +7972,77 @@ var $author$project$View$Overlay$gameMenu = function (args) {
 			_List_fromArray(
 				[
 					A2(
-					$Orasund$elm_layout$Layout$column,
-					$Orasund$elm_layout$Layout$centered,
+					$Orasund$elm_layout$Layout$text,
 					_List_fromArray(
 						[
-							A2(
-							$Orasund$elm_layout$Layout$text,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class('font-size-title')
-								]),
-							'🎲'),
-							A2(
-							$Orasund$elm_layout$Layout$text,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class('font-size-big')
-								]),
-							'Game-Template')
-						])),
+							$elm$html$Html$Attributes$class('font-size-title')
+						]),
+					'Shop'),
 					A2(
-					$Orasund$elm_layout$Layout$textButton,
+					$Orasund$elm_layout$Layout$row,
 					_List_Nil,
-					{
-						label: 'Start',
-						onPress: $elm$core$Maybe$Just(args.startGame)
-					})
+					A2(
+						$elm$core$List$map,
+						function (structure) {
+							return A3(
+								$Orasund$elm_layout$Layout$button,
+								_Utils_ap(
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'width', '80px'),
+											A2($elm$html$Html$Attributes$style, 'height', '80px')
+										]),
+									$Orasund$elm_layout$Layout$centered),
+								{
+									label: 'Buy',
+									onPress: $elm$core$Maybe$Just(
+										args.buy(structure))
+								},
+								A3(
+									$author$project$View$Structure$toHtml,
+									zoom,
+									A2($elm$core$List$cons, $Orasund$elm_layout$Layout$asEl, $Orasund$elm_layout$Layout$centered),
+									structure));
+						},
+						args.cart)),
+					A2(
+					$Orasund$elm_layout$Layout$text,
+					_List_Nil,
+					'Choose ' + ($elm$core$String$fromInt($author$project$Config$maxCartSize) + ' items to add to your house')),
+					A2(
+					$Orasund$elm_layout$Layout$row,
+					_List_Nil,
+					A2(
+						$elm$core$List$map,
+						function (structure) {
+							return A3(
+								$Orasund$elm_layout$Layout$button,
+								_Utils_ap(
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'width', '80px'),
+											A2($elm$html$Html$Attributes$style, 'height', '80px')
+										]),
+									$Orasund$elm_layout$Layout$centered),
+								{
+									label: 'Buy',
+									onPress: $elm$core$Maybe$Just(
+										args.buy(structure))
+								},
+								A3(
+									$author$project$View$Structure$toHtml,
+									zoom,
+									A2($elm$core$List$cons, $Orasund$elm_layout$Layout$asEl, $Orasund$elm_layout$Layout$centered),
+									structure));
+						},
+						$author$project$Structure$sets))
 				])));
 };
 var $author$project$Main$viewOverlay = F2(
 	function (_v0, overlay) {
-		return $author$project$View$Overlay$gameMenu(
-			{startGame: $author$project$Main$NewGame});
+		var cart = overlay.a.cart;
+		return $author$project$View$Overlay$shop(
+			{buy: $author$project$Main$AddToCart, cart: cart});
 	});
 var $elm$html$Html$Attributes$name = $elm$html$Html$Attributes$stringProperty('name');
 var $elm$virtual_dom$VirtualDom$node = function (tag) {
@@ -7561,14 +8067,31 @@ var $author$project$Main$view = function (model) {
 		$Orasund$elm_layout$Layout$column,
 		_List_fromArray(
 			[
-				A2($elm$html$Html$Attributes$style, 'width', '100%')
+				A2($elm$html$Html$Attributes$style, 'width', '100%'),
+				$Orasund$elm_layout$Layout$alignAtCenter
 			]),
 		_List_fromArray(
 			[
 				A2(
-				$Orasund$elm_layout$Layout$el,
-				$Orasund$elm_layout$Layout$centered,
-				A2($author$project$View$Block$toHtml, _List_Nil, model.game.nextBlock)),
+				$elm$core$Maybe$withDefault,
+				$Orasund$elm_layout$Layout$none,
+				A2(
+					$elm$core$Maybe$map,
+					A2(
+						$author$project$View$Structure$toHtml,
+						$author$project$Config$normalZoom,
+						_Utils_ap(
+							_List_fromArray(
+								[$Orasund$elm_layout$Layout$asEl]),
+							$Orasund$elm_layout$Layout$centered)),
+					$elm$core$List$head(model.game.next))),
+				A2(
+				$Orasund$elm_layout$Layout$textButton,
+				_List_Nil,
+				{
+					label: 'Flip',
+					onPress: $elm$core$Maybe$Just($author$project$Main$FlipStructure)
+				}),
 				A2(
 				$author$project$View$Board$selection,
 				{onSelect: $author$project$Main$Place},

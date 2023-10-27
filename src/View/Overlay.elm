@@ -1,20 +1,55 @@
 module View.Overlay exposing (..)
 
+import Config
 import Html exposing (Attribute, Html)
 import Html.Attributes
 import Layout
+import Structure exposing (Structure)
+import View.Structure
 
 
-gameMenu : { startGame : msg } -> Html msg
-gameMenu args =
-    [ [ "🎲" |> Layout.text [ Html.Attributes.class "font-size-title" ]
-      , "Game-Template" |> Layout.text [ Html.Attributes.class "font-size-big" ]
-      ]
-        |> Layout.column Layout.centered
-    , Layout.textButton []
-        { label = "Start"
-        , onPress = Just args.startGame
-        }
+shop : { buy : Structure -> msg, cart : List Structure } -> Html msg
+shop args =
+    let
+        zoom =
+            { zoom = 3 }
+    in
+    [ "Shop" |> Layout.text [ Html.Attributes.class "font-size-title" ]
+    , args.cart
+        |> List.map
+            (\structure ->
+                View.Structure.toHtml zoom
+                    (Layout.asEl :: Layout.centered)
+                    structure
+                    |> Layout.button
+                        ([ Html.Attributes.style "width" "80px"
+                         , Html.Attributes.style "height" "80px"
+                         ]
+                            ++ Layout.centered
+                        )
+                        { label = "Buy"
+                        , onPress = Just (args.buy structure)
+                        }
+            )
+        |> Layout.row []
+    , "Choose " ++ String.fromInt Config.maxCartSize ++ " items to add to your house" |> Layout.text []
+    , Structure.sets
+        |> List.map
+            (\structure ->
+                View.Structure.toHtml zoom
+                    (Layout.asEl :: Layout.centered)
+                    structure
+                    |> Layout.button
+                        ([ Html.Attributes.style "width" "80px"
+                         , Html.Attributes.style "height" "80px"
+                         ]
+                            ++ Layout.centered
+                        )
+                        { label = "Buy"
+                        , onPress = Just (args.buy structure)
+                        }
+            )
+        |> Layout.row []
     ]
         |> Layout.column
             (Html.Attributes.style "gap" "var(--big-space)"

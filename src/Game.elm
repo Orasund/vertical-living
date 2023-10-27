@@ -3,6 +3,7 @@ module Game exposing (..)
 import Block exposing (Block(..))
 import Dict exposing (Dict)
 import Random exposing (Generator, Seed)
+import Structure exposing (Structure)
 
 
 type alias Board =
@@ -13,15 +14,22 @@ type alias Board =
 
 type alias Game =
     { board : Board
-    , nextBlock : Block
+    , next : List Structure
     }
 
 
 new : Game
 new =
     { board = { maxZ = 0, dict = Dict.empty }
-    , nextBlock = Block.BrickWall
+    , next = []
     }
+
+
+setNext : List Structure -> Game -> Generator Game
+setNext list game =
+    list
+        |> Random.constant
+        |> Random.map (\next -> { game | next = next })
 
 
 get : ( Int, Int, Int ) -> Board -> Maybe Block
@@ -31,42 +39,58 @@ get ( x, y, z ) board =
         |> Maybe.andThen (\{ blocks } -> blocks |> Dict.get z)
 
 
-place : ( Int, Int ) -> Game -> Generator Game
+place : ( Int, Int ) -> Game -> Game
 place pos game =
-    (case Block.asList of
+    case game.next of
         head :: tail ->
-            Random.uniform head tail
+            let
+                ( x, y ) =
+                    pos
+
+                z =
+                    head.blocks
+                        |> List.filterMap
+                            (\( ( relX, relY, relZ ), _ ) ->
+                                if relZ == 0 then
+                                    game.board.dict
+                                        |> Dict.get ( x + relX, y + relY )
+                                        |> Maybe.map .maxZ
+                                        |> Maybe.withDefault 0
+                                        |> (+) 1
+                                        |> Just
+
+                                else
+                                    Nothing
+                            )
+                        |> List.maximum
+                        |> Maybe.withDefault 0
+
+                ( _, _, dimZ ) =
+                    head.dimensions
+            in
+            { game
+                | board =
+                    { maxZ = max game.board.maxZ (z + dimZ)
+                    , dict =
+                        head.blocks
+                            |> List.foldl
+                                (\( ( relX, relY, relZ ), block ) ->
+                                    Dict.update ( x + relX, y + relY )
+                                        (\maybe ->
+                                            maybe
+                                                |> Maybe.withDefault { maxZ = 0, blocks = Dict.empty }
+                                                |> (\elem ->
+                                                        { maxZ = z + relZ
+                                                        , blocks = Dict.insert (z + relZ) block elem.blocks
+                                                        }
+                                                   )
+                                                |> Just
+                                        )
+                                )
+                                game.board.dict
+                    }
+                , next = tail
+            }
 
         [] ->
-            Random.constant BrickWall
-    )
-        |> Random.map
-            (\block ->
-                let
-                    z =
-                        game.board.dict
-                            |> Dict.get pos
-                            |> Maybe.map .maxZ
-                            |> Maybe.withDefault 0
-                            |> (+) 1
-                in
-                { game
-                    | board =
-                        { maxZ = max game.board.maxZ z
-                        , dict =
-                            game.board.dict
-                                |> Dict.update pos
-                                    (\maybe ->
-                                        maybe
-                                            |> Maybe.withDefault { maxZ = 0, blocks = Dict.empty }
-                                            |> (\elem ->
-                                                    { maxZ = z
-                                                    , blocks = Dict.insert z game.nextBlock elem.blocks
-                                                    }
-                                               )
-                                            |> Just
-                                    )
-                        }
-                    , nextBlock = block
-                }
-            )
+            game

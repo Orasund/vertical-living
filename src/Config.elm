@@ -25,21 +25,26 @@ title =
     "Game Template"
 
 
-zoom : number
-zoom =
-    6
+normalZoom : { zoom : Int }
+normalZoom =
+    { zoom = 6 }
 
 
-spriteHeight : number
-spriteHeight =
-    18 * zoom
+spriteHeight : { zoom : Int } -> Int
+spriteHeight args =
+    18 * args.zoom
 
 
-spriteWidth : number
-spriteWidth =
-    16 * zoom
+spriteWidth : { zoom : Int } -> Int
+spriteWidth args =
+    16 * args.zoom
 
 
-squareHeight : number
-squareHeight =
-    10 * zoom
+squareHeight : { zoom : Int } -> Int
+squareHeight args =
+    10 * args.zoom
+
+
+maxCartSize : Int
+maxCartSize =
+    10

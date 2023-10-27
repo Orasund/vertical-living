@@ -12,10 +12,12 @@ import Overlay exposing (Overlay(..))
 import Port
 import PortDefinition exposing (FromElm(..), ToElm(..))
 import Random exposing (Generator, Seed)
+import Structure exposing (Structure)
 import View
 import View.Block
 import View.Board
 import View.Overlay
+import View.Structure
 
 
 type alias Model =
@@ -32,6 +34,8 @@ type Msg
     | Received (Result Json.Decode.Error ToElm)
     | GotSeed Seed
     | Place ( Int, Int )
+    | AddToCart Structure
+    | FlipStructure
 
 
 apply : Model -> Generator Model -> Model
@@ -47,9 +51,12 @@ init : () -> ( Model, Cmd Msg )
 init () =
     ( { game = Game.new
       , seed = Random.initialSeed 42
-      , overlay = Nothing
+      , overlay = Just (Shop { cart = [] })
       }
-    , Gen.Sound.asList |> RegisterSounds |> Port.fromElm
+    , [ Gen.Sound.asList |> RegisterSounds |> Port.fromElm
+      , Random.generate GotSeed Random.independentSeed
+      ]
+        |> Cmd.batch
     )
 
 
@@ -105,17 +112,61 @@ update msg model =
 
         Place pos ->
             Game.place pos model.game
-                |> Random.map (\game -> { model | game = game })
-                |> apply model
+                |> (\game ->
+                        { model
+                            | game = game
+                            , overlay =
+                                if game.next == [] then
+                                    Just (Shop { cart = [] })
+
+                                else
+                                    Nothing
+                        }
+                   )
                 |> withNoCmd
+
+        AddToCart structure ->
+            case model.overlay of
+                Just (Shop shop) ->
+                    structure
+                        :: shop.cart
+                        |> (\cart ->
+                                if List.length cart >= Config.maxCartSize then
+                                    model.game
+                                        |> Game.setNext cart
+                                        |> Random.map (\game -> { model | game = game, overlay = Nothing })
+                                        |> apply model
+
+                                else
+                                    { model | overlay = Just (Shop { cart = cart }) }
+                           )
+                        |> withNoCmd
+
+                Nothing ->
+                    model |> withNoCmd
+
+        FlipStructure ->
+            case model.game.next of
+                head :: tail ->
+                    model.game
+                        |> (\game ->
+                                { game | next = Structure.flip head :: tail }
+                           )
+                        |> (\game -> { model | game = game })
+                        |> withNoCmd
+
+                [] ->
+                    model |> withNoCmd
 
 
 viewOverlay : Model -> Overlay -> Html Msg
 viewOverlay _ overlay =
     case overlay of
-        GameMenu ->
-            View.Overlay.gameMenu
-                { startGame = NewGame }
+        Shop { cart } ->
+            View.Overlay.shop
+                { buy = AddToCart
+                , cart = cart
+                }
 
 
 view :
@@ -127,15 +178,27 @@ view :
 view model =
     let
         content =
-            [ View.Block.toHtml [] model.game.nextBlock
-                |> Layout.el Layout.centered
+            [ model.game.next
+                |> List.head
+                |> Maybe.map
+                    (View.Structure.toHtml Config.normalZoom
+                        ([ Layout.asEl
+                         ]
+                            ++ Layout.centered
+                        )
+                    )
+                |> Maybe.withDefault Layout.none
+            , Layout.textButton [] { label = "Flip", onPress = Just FlipStructure }
             , View.Board.selection
                 { onSelect = Place }
                 model.game.board
             , View.Board.toHtml
                 model.game.board
             ]
-                |> Layout.column [ Html.Attributes.style "width" "100%" ]
+                |> Layout.column
+                    [ Html.Attributes.style "width" "100%"
+                    , Layout.alignAtCenter
+                    ]
     in
     { title = Config.title
     , body =

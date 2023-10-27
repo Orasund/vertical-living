@@ -1,24 +1,25 @@
 module View.Block exposing (..)
 
-import Block exposing (Block(..))
+import Block exposing (Block)
 import Config
 import Html exposing (Attribute, Html)
 import Pixel
 
 
-fromPos : ( Int, Int ) -> List (Attribute msg) -> Html msg
-fromPos pos attrs =
+fromPos : { zoom : Int } -> ( Int, Int ) -> List (Attribute msg) -> Html msg
+fromPos zoom pos attrs =
     Pixel.spriteImage (Pixel.pixelated :: attrs)
         { url = "assets/spritesheet.png"
         , pos = pos
-        , width = Config.spriteWidth
-        , height = Config.spriteHeight
-        , sheetColumns = 2
-        , sheetRows = 2
+        , width = Config.spriteWidth zoom |> toFloat
+        , height = Config.spriteHeight zoom |> toFloat
+        , sheetColumns = 8
+        , sheetRows = 4
         }
 
 
-toHtml : List (Attribute msg) -> Block -> Html msg
-toHtml attrs block =
-    fromPos (Block.toSprite block)
+toHtml : { zoom : Int } -> List (Attribute msg) -> Block -> Html msg
+toHtml zoom attrs block =
+    fromPos zoom
+        (Block.toSprite block)
         attrs

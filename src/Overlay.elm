@@ -1,5 +1,7 @@
 module Overlay exposing (..)
 
+import Structure exposing (Structure)
+
 
 type Overlay
-    = GameMenu
+    = Shop { cart : List Structure }

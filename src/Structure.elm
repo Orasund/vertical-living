@@ -46,26 +46,54 @@ singleton block =
 
 sets : List Structure
 sets =
-    [ [ WoodWall
-      , Flower
-      , WoodTable
+    [ [ Flower
       , WoodChairLeft
-      , BrickWall
-      , BrickStairsLeft
       ]
         |> List.map singleton
-    , [ [ ( ( 0, 0, 0 ), BrickWall )
-        , ( ( 1, 0, 0 ), BrickFloor )
+    , [ [ ( ( 0, 0, 0 ), WoodCabinetLeftBottomLeft )
+        , ( ( 0, 1, 0 ), WoodCabinetLeftBottomRight )
+        , ( ( 0, 0, 1 ), WoodCabinetLeftTopLeft )
+        , ( ( 0, 1, 1 ), WoodCabinetLeftTopRight )
         ]
             |> fromBlocks
-      , [ ( ( 0, 0, 0 ), WoodCabinetBottomLeft )
-        , ( ( 0, 1, 0 ), WoodCabinetBottomRight )
-        , ( ( 0, 0, 1 ), WoodCabinetTopLeft )
-        , ( ( 0, 1, 1 ), WoodCabinetTopRight )
+      , [ ( ( 0, 0, 0 ), LongTableLeftBack )
+        , ( ( 1, 0, 0 ), LongTableLeftFront )
+        ]
+            |> fromBlocks
+
+      {--, [ ( ( 0, 0, 0 ), LongTableLeftBack )
+        , ( ( 1, 0, 0 ), LongTableRightBack )
+        , ( ( 0, 1, 0 ), LongTableLeftBack )
+        , ( ( 1, 1, 0 ), LongTableLeftFront )
+        ]
+            |> fromBlocks--}
+      , singleton BrickStairsLeft
+      , [ ( ( 0, 0, 0 ), BrickWall )
+        , ( ( 1, 0, 0 ), BrickFloor )
+        , ( ( 2, 0, 0 ), BrickFloor )
         ]
             |> fromBlocks
       , [ ( ( 0, 0, 0 ), WoodWall )
-        , ( ( 1, 0, 0 ), WoodWall )
+        , ( ( 1, 0, 0 ), WoodFloor )
+        , ( ( 0, 1, 0 ), WoodWall )
+        , ( ( 1, 1, 0 ), WoodFloor )
+        ]
+            |> fromBlocks
+
+      {--, [ ( ( 0, 0, 0 ), BrickWall )
+        , ( ( 1, 0, 0 ), BrickWall )
+        , ( ( 0, 1, 0 ), BrickWall )
+        , ( ( 1, 1, 0 ), BrickWall )
+        ]
+            |> fromBlocks--}
+      , [ ( ( 0, 0, 0 ), BigPlant False False False )
+        , ( ( 1, 0, 0 ), BigPlant True False False )
+        , ( ( 0, 1, 0 ), BigPlant False True False )
+        , ( ( 1, 1, 0 ), BigPlant True True False )
+        , ( ( 0, 0, 1 ), BigPlant False False True )
+        , ( ( 1, 0, 1 ), BigPlant True False True )
+        , ( ( 0, 1, 1 ), BigPlant False True True )
+        , ( ( 1, 1, 1 ), BigPlant True True True )
         ]
             |> fromBlocks
       ]

@@ -60,7 +60,7 @@ toHtml zoom attrs board =
             (attrs
                 ++ [ Html.Attributes.style "position" "relative"
                    , ((Config.spriteHeight zoom
-                        + (dimZ - 1)
+                        + dimZ
                         * Config.squareHeight zoom
                         |> String.fromInt
                       )

@@ -1,8 +1,9 @@
 module Game exposing (..)
 
 import Block exposing (Block(..))
+import Config
 import Dict exposing (Dict)
-import Random exposing (Generator, Seed)
+import Random exposing (Generator)
 import Structure exposing (Structure)
 
 
@@ -20,7 +21,16 @@ type alias Game =
 
 new : Game
 new =
-    { board = { maxZ = 0, dict = Dict.empty }
+    let
+        board : Board
+        board =
+            List.range 0 (Config.boardSize - 1)
+                |> List.concatMap (\y -> List.range 0 (Config.boardSize - 1) |> List.map (Tuple.pair y))
+                |> List.map (\pos -> ( pos, { maxZ = 1, blocks = Dict.singleton 1 BrickWall } ))
+                |> Dict.fromList
+                |> (\dict -> { maxZ = 1, dict = dict })
+    in
+    { board = board
     , next = []
     }
 
@@ -37,6 +47,51 @@ get ( x, y, z ) board =
     board.dict
         |> Dict.get ( x, y )
         |> Maybe.andThen (\{ blocks } -> blocks |> Dict.get z)
+
+
+canPlace : ( Int, Int ) -> Game -> Bool
+canPlace ( x, y ) game =
+    case game.next of
+        head :: _ ->
+            let
+                isValid v =
+                    0 <= v && v < Config.boardSize
+
+                z =
+                    head.blocks
+                        |> List.filterMap
+                            (\( ( relX, relY, relZ ), _ ) ->
+                                if relZ == 0 then
+                                    game.board.dict
+                                        |> Dict.get ( x + relX, y + relY )
+                                        |> Maybe.map .maxZ
+                                        |> Maybe.withDefault 0
+                                        |> Just
+
+                                else
+                                    Nothing
+                            )
+                        |> List.maximum
+                        |> Maybe.withDefault 0
+            in
+            head.blocks
+                |> List.all
+                    (\( ( relX, relY, relZ ), block ) ->
+                        if not (isValid (relX + x)) || not (isValid (relY + y)) || not (isValid (relZ + z)) then
+                            False
+
+                        else if relZ == 0 && Block.needsGround block then
+                            game.board
+                                |> get ( x + relX, y + relY, z )
+                                |> Maybe.map Block.isSolid
+                                |> Maybe.withDefault False
+
+                        else
+                            True
+                    )
+
+        [] ->
+            False
 
 
 place : ( Int, Int ) -> Game -> Game

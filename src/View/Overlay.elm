@@ -8,7 +8,7 @@ import Structure exposing (Structure)
 import View.Structure
 
 
-shop : { buy : Structure -> msg, cart : List Structure } -> Html msg
+shop : { buy : Structure -> msg, cart : List Structure, onRandom : msg } -> Html msg
 shop args =
     let
         zoom =
@@ -21,18 +21,16 @@ shop args =
                 View.Structure.toHtml zoom
                     (Layout.asEl :: Layout.centered)
                     structure
-                    |> Layout.button
+                    |> Layout.el
                         ([ Html.Attributes.style "width" "80px"
                          , Html.Attributes.style "height" "80px"
                          ]
                             ++ Layout.centered
                         )
-                        { label = "Buy"
-                        , onPress = Just (args.buy structure)
-                        }
             )
         |> Layout.row []
     , "Choose " ++ String.fromInt Config.maxCartSize ++ " items to add to your house" |> Layout.text []
+    , Layout.textButton [] { label = "RANDOM", onPress = args.onRandom |> Just }
     , Structure.sets
         |> List.map
             (\structure ->

@@ -14,7 +14,7 @@ fromPos zoom pos attrs =
         , width = Config.spriteWidth zoom |> toFloat
         , height = Config.spriteHeight zoom |> toFloat
         , sheetColumns = 8
-        , sheetRows = 4
+        , sheetRows = 8
         }
 
 

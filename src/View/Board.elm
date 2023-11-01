@@ -3,25 +3,25 @@ module View.Board exposing (..)
 import Block exposing (Block(..))
 import Config
 import Dict
-import Game exposing (Board)
+import Game exposing (Board, Game)
 import Html exposing (Html)
 import Html.Attributes
 import Layout
 import Pixel
-import Structure
+import Structure exposing (Structure)
 import View.Structure
 
 
-selection : { onSelect : ( Int, Int ) -> msg } -> Board -> Html msg
-selection args board =
+selection : { onSelect : ( Int, Int ) -> msg } -> Game -> Html msg
+selection args game =
     let
         zoom =
             Config.normalZoom
     in
-    List.range 0 3
+    List.range 0 (Config.boardSize - 1)
         |> List.concatMap
             (\y ->
-                List.range 0 3
+                List.range 0 (Config.boardSize - 1)
                     |> List.map (Tuple.pair y)
             )
         |> List.map
@@ -31,11 +31,7 @@ selection args board =
                         View.Structure.toIsomatricPos zoom ( x, y, 0 )
 
                     active =
-                        board.dict
-                            |> Dict.get ( x, y )
-                            |> Maybe.andThen (\{ maxZ, blocks } -> blocks |> Dict.get maxZ)
-                            |> Maybe.map Block.isSolid
-                            |> Maybe.withDefault True
+                        game |> Game.canPlace ( x, y )
                 in
                 Layout.textButton
                     [ String.fromInt top
@@ -60,7 +56,7 @@ selection args board =
             )
         |> Html.div
             [ Html.Attributes.style "position" "relative"
-            , (4 * Config.spriteHeight zoom - 4 * Config.squareHeight zoom |> String.fromInt)
+            , (Config.boardSize * Config.spriteHeight zoom - Config.boardSize * Config.squareHeight zoom |> String.fromInt)
                 ++ "px"
                 |> Html.Attributes.style "height"
             ]
@@ -72,10 +68,10 @@ toHtml board =
         zoom =
             Config.normalZoom
     in
-    List.range 0 3
+    List.range 0 (Config.boardSize - 1)
         |> List.concatMap
             (\y ->
-                List.range 0 3
+                List.range 0 (Config.boardSize - 1)
                     |> List.map (Tuple.pair y)
             )
         |> List.concatMap

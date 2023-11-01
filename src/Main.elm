@@ -6,7 +6,7 @@ import Game exposing (Game)
 import Gen.Sound exposing (Sound(..))
 import Html exposing (Html)
 import Html.Attributes
-import Json.Decode exposing (Value)
+import Json.Decode
 import Layout
 import Overlay exposing (Overlay(..))
 import Port
@@ -14,7 +14,6 @@ import PortDefinition exposing (FromElm(..), ToElm(..))
 import Random exposing (Generator, Seed)
 import Structure exposing (Structure)
 import View
-import View.Block
 import View.Board
 import View.Overlay
 import View.Structure
@@ -22,6 +21,7 @@ import View.Structure
 
 type alias Model =
     { game : Game
+    , undo : Maybe Game
     , overlay : Maybe Overlay
     , seed : Seed
     }
@@ -35,7 +35,9 @@ type Msg
     | GotSeed Seed
     | Place ( Int, Int )
     | AddToCart Structure
+    | RandomCart
     | FlipStructure
+    | Undo
 
 
 apply : Model -> Generator Model -> Model
@@ -50,6 +52,7 @@ apply { seed } generator =
 init : () -> ( Model, Cmd Msg )
 init () =
     ( { game = Game.new
+      , undo = Nothing
       , seed = Random.initialSeed 42
       , overlay = Just (Shop { cart = [] })
       }
@@ -97,7 +100,7 @@ update msg model =
 
         Received result ->
             case result of
-                Ok (SoundEnded sound) ->
+                Ok (SoundEnded _) ->
                     model |> withNoCmd
 
                 Err error ->
@@ -115,6 +118,7 @@ update msg model =
                 |> (\game ->
                         { model
                             | game = game
+                            , undo = model.game |> Just
                             , overlay =
                                 if game.next == [] then
                                     Just (Shop { cart = [] })
@@ -145,6 +149,24 @@ update msg model =
                 Nothing ->
                     model |> withNoCmd
 
+        RandomCart ->
+            (case Structure.sets of
+                head :: tail ->
+                    Random.uniform head tail
+
+                [] ->
+                    Random.constant (Structure.fromBlocks [])
+            )
+                |> Random.list Config.maxCartSize
+                |> Random.andThen
+                    (\cart ->
+                        model.game
+                            |> Game.setNext cart
+                            |> Random.map (\game -> { model | game = game, overlay = Nothing })
+                    )
+                |> apply model
+                |> withNoCmd
+
         FlipStructure ->
             case model.game.next of
                 head :: tail ->
@@ -158,6 +180,15 @@ update msg model =
                 [] ->
                     model |> withNoCmd
 
+        Undo ->
+            case model.undo of
+                Just game ->
+                    { model | game = game, undo = Nothing }
+                        |> withNoCmd
+
+                Nothing ->
+                    model |> withNoCmd
+
 
 viewOverlay : Model -> Overlay -> Html Msg
 viewOverlay _ overlay =
@@ -166,6 +197,7 @@ viewOverlay _ overlay =
             View.Overlay.shop
                 { buy = AddToCart
                 , cart = cart
+                , onRandom = RandomCart
                 }
 
 
@@ -178,27 +210,31 @@ view :
 view model =
     let
         content =
-            [ model.game.next
+            model.game.next
                 |> List.head
                 |> Maybe.map
-                    (View.Structure.toHtml Config.normalZoom
-                        ([ Layout.asEl
-                         ]
-                            ++ Layout.centered
-                        )
+                    (\structure ->
+                        [ View.Structure.toHtml Config.normalZoom
+                            (Layout.asEl :: Layout.centered)
+                            structure
+                        , Layout.textButton [] { label = "Flip", onPress = Just FlipStructure }
+                        , if model.undo /= Nothing then
+                            Layout.textButton [] { label = "Undo", onPress = Just Undo }
+
+                          else
+                            Layout.none
+                        , View.Board.selection
+                            { onSelect = Place }
+                            model.game
+                        , View.Board.toHtml
+                            model.game.board
+                        ]
+                            |> Layout.column
+                                [ Html.Attributes.style "width" "100%"
+                                , Layout.alignAtCenter
+                                ]
                     )
                 |> Maybe.withDefault Layout.none
-            , Layout.textButton [] { label = "Flip", onPress = Just FlipStructure }
-            , View.Board.selection
-                { onSelect = Place }
-                model.game.board
-            , View.Board.toHtml
-                model.game.board
-            ]
-                |> Layout.column
-                    [ Html.Attributes.style "width" "100%"
-                    , Layout.alignAtCenter
-                    ]
     in
     { title = Config.title
     , body =

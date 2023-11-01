@@ -27,7 +27,7 @@ title =
 
 normalZoom : { zoom : Int }
 normalZoom =
-    { zoom = 6 }
+    { zoom = 5 }
 
 
 spriteHeight : { zoom : Int } -> Int
@@ -48,3 +48,7 @@ squareHeight args =
 maxCartSize : Int
 maxCartSize =
     10
+
+
+boardSize =
+    4

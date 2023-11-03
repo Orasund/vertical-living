@@ -44,58 +44,111 @@ singleton block =
     [ ( ( 0, 0, 0 ), block ) ] |> fromBlocks
 
 
-sets : List Structure
+sets : List ( String, List Structure )
 sets =
-    [ [ Flower
-      , WoodChairLeft
-      ]
-        |> List.map singleton
-    , [ [ ( ( 0, 0, 0 ), WoodCabinetLeftBottomLeft )
-        , ( ( 0, 1, 0 ), WoodCabinetLeftBottomRight )
-        , ( ( 0, 0, 1 ), WoodCabinetLeftTopLeft )
-        , ( ( 0, 1, 1 ), WoodCabinetLeftTopRight )
-        ]
+    [ ( "Wood"
+      , [ singleton WoodTable
+        , [ ( ( 0, 0, 0 ), Shelf False )
+          , ( ( 0, 0, 1 ), Shelf True )
+          ]
             |> fromBlocks
-      , [ ( ( 0, 0, 0 ), LongTableLeftBack )
-        , ( ( 1, 0, 0 ), LongTableLeftFront )
-        ]
+        , singleton WoodChairLeft
+        , [ ( ( 0, 0, 0 ), WoodCabinetLeftBottomLeft )
+          , ( ( 0, 1, 0 ), WoodCabinetLeftBottomRight )
+          , ( ( 0, 0, 1 ), WoodCabinetLeftTopLeft )
+          , ( ( 0, 1, 1 ), WoodCabinetLeftTopRight )
+          ]
+            |> fromBlocks
+        , [ ( ( 0, 0, 0 ), LongTableLeftBack )
+          , ( ( 1, 0, 0 ), LongTableLeftFront )
+          ]
             |> fromBlocks
 
-      {--, [ ( ( 0, 0, 0 ), LongTableLeftBack )
+        {--, [ ( ( 0, 0, 0 ), LongTableLeftBack )
         , ( ( 1, 0, 0 ), LongTableRightBack )
         , ( ( 0, 1, 0 ), LongTableLeftBack )
         , ( ( 1, 1, 0 ), LongTableLeftFront )
         ]
             |> fromBlocks--}
-      , singleton BrickStairsLeft
-      , [ ( ( 0, 0, 0 ), BrickWall )
-        , ( ( 1, 0, 0 ), BrickFloor )
-        , ( ( 2, 0, 0 ), BrickFloor )
+        {--, [ ( ( 0, 0, 0 ), WoodWall )
+          , ( ( 1, 0, 0 ), WoodFloor )
+          , ( ( 0, 1, 0 ), WoodWall )
+          , ( ( 1, 1, 0 ), WoodFloor )
+          ]
+            |> fromBlocks--}
         ]
+      )
+    , ( "Brick"
+      , [ singleton BrickWall
+        , [ ( ( 0, 0, 0 ), BrickFloor )
+          , ( ( 1, 0, 0 ), BrickStairsLeft )
+          ]
             |> fromBlocks
-      , [ ( ( 0, 0, 0 ), WoodWall )
-        , ( ( 1, 0, 0 ), WoodFloor )
-        , ( ( 0, 1, 0 ), WoodWall )
-        , ( ( 1, 1, 0 ), WoodFloor )
-        ]
+        , [ ( ( 0, 0, 0 ), BrickWall )
+          , ( ( 1, 0, 0 ), BrickFloor )
+          , ( ( 2, 0, 0 ), BrickFloor )
+          ]
             |> fromBlocks
 
-      {--, [ ( ( 0, 0, 0 ), BrickWall )
+        {--, [ ( ( 0, 0, 0 ), BrickWall )
         , ( ( 1, 0, 0 ), BrickWall )
         , ( ( 0, 1, 0 ), BrickWall )
         , ( ( 1, 1, 0 ), BrickWall )
         ]
             |> fromBlocks--}
-      , [ ( ( 0, 0, 0 ), BigPlant False False False )
-        , ( ( 1, 0, 0 ), BigPlant True False False )
-        , ( ( 0, 1, 0 ), BigPlant False True False )
-        , ( ( 1, 1, 0 ), BigPlant True True False )
-        , ( ( 0, 0, 1 ), BigPlant False False True )
-        , ( ( 1, 0, 1 ), BigPlant True False True )
-        , ( ( 0, 1, 1 ), BigPlant False True True )
-        , ( ( 1, 1, 1 ), BigPlant True True True )
+        ]
+      )
+    , ( "Plants"
+      , [ [ ( ( 0, 0, 1 ), Vines )
+          , ( ( 1, 0, 0 ), VineBlock )
+          , ( ( 1, 0, 1 ), GrasBlock )
+          ]
+            |> fromBlocks
+        , [ ( ( 0, 0, 0 ), BigPlant False False False )
+          , ( ( 1, 0, 0 ), BigPlant True False False )
+          , ( ( 0, 1, 0 ), BigPlant False True False )
+          , ( ( 1, 1, 0 ), BigPlant True True False )
+          , ( ( 0, 0, 1 ), BigPlant False False True )
+          , ( ( 1, 0, 1 ), BigPlant True False True )
+          , ( ( 0, 1, 1 ), BigPlant False True True )
+          , ( ( 1, 1, 1 ), BigPlant True True True )
+          ]
+            |> fromBlocks
+
+        {--, [ ( ( 0, 0, 0 ), VineBlock )
+        , ( ( 0, 0, 1 ), GrasBlock )
+        , ( ( 1, 0, 0 ), Vines )
+        , ( ( 0, 1, 0 ), Vines )
+        , ( ( 1, 0, 1 ), GrasBlock )
+        , ( ( 0, 1, 1 ), GrasBlock )
+        , ( ( 1, 1, 1 ), BrickFloor )
+        ]
+            |> fromBlocks--}
+        {--, [ ( ( 0, 0, 0 ), VineBlock )
+        , ( ( 0, 0, 1 ), GrasBlock )
         ]
             |> fromBlocks
-      ]
+        --}
+        {--, [ ( ( -2, 0, 1 ), Vines )
+          , ( ( -1, 0, 1 ), Vines )
+          , ( ( 0, 0, 0 ), VineBlock )
+          , ( ( 0, 0, 1 ), GrasBlock )
+          ]
+            |> fromBlocks--}
+        {--, [ ( ( 0, 0, 0 ), VineBlock )
+          , ( ( 0, 0, 1 ), GrasBlock )
+          , ( ( 1, 0, 1 ), Vines )
+          , ( ( 2, 0, 1 ), Vines )
+          ]
+            |> fromBlocks--}
+        , [ ( ( 0, -1, 1 ), Vines )
+          , ( ( 0, 0, 0 ), VineBlock )
+          , ( ( 0, 0, 1 ), GrasBlock )
+          , ( ( 1, -1, 1 ), Vines )
+          , ( ( 1, 0, 1 ), Vines )
+          ]
+            |> fromBlocks
+        , singleton Flower
+        ]
+      )
     ]
-        |> List.concat

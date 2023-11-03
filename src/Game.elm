@@ -77,17 +77,23 @@ canPlace ( x, y ) game =
             head.blocks
                 |> List.all
                     (\( ( relX, relY, relZ ), block ) ->
-                        if not (isValid (relX + x)) || not (isValid (relY + y)) || not (isValid (relZ + z)) then
+                        if not (isValid (relX + x)) || not (isValid (relY + y)) || not (0 <= (relZ + z)) then
                             False
 
-                        else if relZ == 0 && Block.needsGround block then
-                            game.board
-                                |> get ( x + relX, y + relY, z )
-                                |> Maybe.map Block.isSolid
-                                |> Maybe.withDefault False
-
                         else
-                            True
+                            (game.board
+                                |> get ( x + relX, y + relY, z + relZ + 1 )
+                                |> (==) Nothing
+                            )
+                                && (if relZ == 0 && Block.needsGround block then
+                                        game.board
+                                            |> get ( x + relX, y + relY, z )
+                                            |> Maybe.map Block.isSolid
+                                            |> Maybe.withDefault False
+
+                                    else
+                                        True
+                                   )
                     )
 
         [] ->

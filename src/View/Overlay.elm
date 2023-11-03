@@ -12,7 +12,7 @@ shop : { buy : Structure -> msg, cart : List Structure, onRandom : msg } -> Html
 shop args =
     let
         zoom =
-            { zoom = 3 }
+            { zoom = 2 }
     in
     [ "Shop" |> Layout.text [ Html.Attributes.class "font-size-title" ]
     , args.cart
@@ -32,22 +32,29 @@ shop args =
     , "Choose " ++ String.fromInt Config.maxCartSize ++ " items to add to your house" |> Layout.text []
     , Layout.textButton [] { label = "RANDOM", onPress = args.onRandom |> Just }
     , Structure.sets
-        |> List.map
-            (\structure ->
-                View.Structure.toHtml zoom
-                    (Layout.asEl :: Layout.centered)
-                    structure
-                    |> Layout.button
-                        ([ Html.Attributes.style "width" "80px"
-                         , Html.Attributes.style "height" "80px"
-                         ]
-                            ++ Layout.centered
+        |> List.concatMap
+            (\( name, list ) ->
+                [ Layout.text [] name
+                , list
+                    |> List.map
+                        (\structure ->
+                            View.Structure.toHtml zoom
+                                (Layout.asEl :: Layout.centered)
+                                structure
+                                |> Layout.button
+                                    ([ Html.Attributes.style "width" "80px"
+                                     , Html.Attributes.style "height" "80px"
+                                     ]
+                                        ++ Layout.centered
+                                    )
+                                    { label = "Buy"
+                                    , onPress = Just (args.buy structure)
+                                    }
                         )
-                        { label = "Buy"
-                        , onPress = Just (args.buy structure)
-                        }
+                    |> Layout.row []
+                ]
             )
-        |> Layout.row []
+        |> Layout.column []
     ]
         |> Layout.column
             (Html.Attributes.style "gap" "var(--big-space)"

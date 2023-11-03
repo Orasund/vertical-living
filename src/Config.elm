@@ -47,7 +47,7 @@ squareHeight args =
 
 maxCartSize : Int
 maxCartSize =
-    10
+    15
 
 
 boardSize =

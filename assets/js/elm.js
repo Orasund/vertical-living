@@ -7152,6 +7152,300 @@ var $elm$random$Random$constant = function (value) {
 			return _Utils_Tuple2(value, seed);
 		});
 };
+var $elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var $elm$core$Array$fromListHelp = F3(
+	function (list, nodeList, nodeListSize) {
+		fromListHelp:
+		while (true) {
+			var _v0 = A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, list);
+			var jsArray = _v0.a;
+			var remainingItems = _v0.b;
+			if (_Utils_cmp(
+				$elm$core$Elm$JsArray$length(jsArray),
+				$elm$core$Array$branchFactor) < 0) {
+				return A2(
+					$elm$core$Array$builderToArray,
+					true,
+					{nodeList: nodeList, nodeListSize: nodeListSize, tail: jsArray});
+			} else {
+				var $temp$list = remainingItems,
+					$temp$nodeList = A2(
+					$elm$core$List$cons,
+					$elm$core$Array$Leaf(jsArray),
+					nodeList),
+					$temp$nodeListSize = nodeListSize + 1;
+				list = $temp$list;
+				nodeList = $temp$nodeList;
+				nodeListSize = $temp$nodeListSize;
+				continue fromListHelp;
+			}
+		}
+	});
+var $elm$core$Array$fromList = function (list) {
+	if (!list.b) {
+		return $elm$core$Array$empty;
+	} else {
+		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
+	}
+};
+var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
+var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
+var $elm$core$Array$getHelp = F3(
+	function (shift, index, tree) {
+		getHelp:
+		while (true) {
+			var pos = $elm$core$Array$bitMask & (index >>> shift);
+			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (_v0.$ === 'SubTree') {
+				var subTree = _v0.a;
+				var $temp$shift = shift - $elm$core$Array$shiftStep,
+					$temp$index = index,
+					$temp$tree = subTree;
+				shift = $temp$shift;
+				index = $temp$index;
+				tree = $temp$tree;
+				continue getHelp;
+			} else {
+				var values = _v0.a;
+				return A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, values);
+			}
+		}
+	});
+var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var $elm$core$Array$tailIndex = function (len) {
+	return (len >>> 5) << 5;
+};
+var $elm$core$Array$get = F2(
+	function (index, _v0) {
+		var len = _v0.a;
+		var startShift = _v0.b;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? $elm$core$Maybe$Nothing : ((_Utils_cmp(
+			index,
+			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
+			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
+			A3($elm$core$Array$getHelp, startShift, index, tree)));
+	});
+var $elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2($elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var $elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return $elm$core$List$reverse(
+			A3($elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var $elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _v0 = _Utils_Tuple2(n, list);
+			_v0$1:
+			while (true) {
+				_v0$5:
+				while (true) {
+					if (!_v0.b.b) {
+						return list;
+					} else {
+						if (_v0.b.b.b) {
+							switch (_v0.a) {
+								case 1:
+									break _v0$1;
+								case 2:
+									var _v2 = _v0.b;
+									var x = _v2.a;
+									var _v3 = _v2.b;
+									var y = _v3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_v0.b.b.b.b) {
+										var _v4 = _v0.b;
+										var x = _v4.a;
+										var _v5 = _v4.b;
+										var y = _v5.a;
+										var _v6 = _v5.b;
+										var z = _v6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _v0$5;
+									}
+								default:
+									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
+										var _v7 = _v0.b;
+										var x = _v7.a;
+										var _v8 = _v7.b;
+										var y = _v8.a;
+										var _v9 = _v8.b;
+										var z = _v9.a;
+										var _v10 = _v9.b;
+										var w = _v10.a;
+										var tl = _v10.b;
+										return (ctr > 1000) ? A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _v0$5;
+									}
+							}
+						} else {
+							if (_v0.a === 1) {
+								break _v0$1;
+							} else {
+								break _v0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _v1 = _v0.b;
+			var x = _v1.a;
+			return _List_fromArray(
+				[x]);
+		}
+	});
+var $elm$core$List$take = F2(
+	function (n, list) {
+		return A3($elm$core$List$takeFast, 0, n, list);
+	});
+var $author$project$Random$Extra$choose = function (list) {
+	if ($elm$core$List$isEmpty(list)) {
+		return $elm$random$Random$constant(
+			_Utils_Tuple2($elm$core$Maybe$Nothing, list));
+	} else {
+		var lastIndex = $elm$core$List$length(list) - 1;
+		var gen = A2($elm$random$Random$int, 0, lastIndex);
+		var front = function (i) {
+			return A2($elm$core$List$take, i, list);
+		};
+		var back = function (i) {
+			return A2($elm$core$List$drop, i + 1, list);
+		};
+		var array = $elm$core$Array$fromList(list);
+		return A2(
+			$elm$random$Random$map,
+			function (index) {
+				return _Utils_Tuple2(
+					A2($elm$core$Array$get, index, array),
+					A2(
+						$elm$core$List$append,
+						front(index),
+						back(index)));
+			},
+			gen);
+	}
+};
+var $elm$random$Random$lazy = function (callback) {
+	return $elm$random$Random$Generator(
+		function (seed) {
+			var _v0 = callback(_Utils_Tuple0);
+			var gen = _v0.a;
+			return gen(seed);
+		});
+};
+var $author$project$Random$Extra$choices = F2(
+	function (count, list) {
+		return (count < 1) ? $elm$random$Random$constant(
+			_Utils_Tuple2(_List_Nil, list)) : A2(
+			$elm$random$Random$andThen,
+			function (_v0) {
+				var choice = _v0.a;
+				var remaining = _v0.b;
+				var genRest = $elm$random$Random$lazy(
+					function (_v3) {
+						return A2($author$project$Random$Extra$choices, count - 1, remaining);
+					});
+				var addToChoices = F2(
+					function (elem, _v2) {
+						var chosen = _v2.a;
+						var unchosen = _v2.b;
+						return _Utils_Tuple2(
+							A2($elm$core$List$cons, elem, chosen),
+							unchosen);
+					});
+				if (choice.$ === 'Nothing') {
+					return $elm$random$Random$constant(
+						_Utils_Tuple2(_List_Nil, list));
+				} else {
+					var elem = choice.a;
+					return A2(
+						$elm$random$Random$map,
+						addToChoices(elem),
+						genRest);
+				}
+			},
+			$author$project$Random$Extra$choose(list));
+	});
+var $author$project$Block$BigPlant = F3(
+	function (a, b, c) {
+		return {$: 'BigPlant', a: a, b: b, c: c};
+	});
 var $author$project$Block$BrickStairsLeft = {$: 'BrickStairsLeft'};
 var $author$project$Block$BrickStairsRight = {$: 'BrickStairsRight'};
 var $author$project$Block$LongTableLeftBack = {$: 'LongTableLeftBack'};
@@ -7202,6 +7496,11 @@ var $author$project$Block$flip = function (block) {
 			return $author$project$Block$LongTableRightFront;
 		case 'LongTableRightFront':
 			return $author$project$Block$LongTableLeftFront;
+		case 'BigPlant':
+			var a = block.a;
+			var b = block.b;
+			var c = block.c;
+			return A3($author$project$Block$BigPlant, b, a, c);
 		default:
 			return block;
 	}
@@ -7258,7 +7557,6 @@ var $author$project$Structure$fromBlocks = function (list) {
 				}))
 	};
 };
-var $elm$core$Basics$ge = _Utils_ge;
 var $author$project$Main$gotSeed = F2(
 	function (seed, model) {
 		return _Utils_update(
@@ -7296,7 +7594,7 @@ var $elm$random$Random$list = F2(
 			});
 	});
 var $elm$core$Debug$log = _Debug_log;
-var $author$project$Config$maxCartSize = 10;
+var $author$project$Config$maxCartSize = 15;
 var $author$project$Main$setOverlay = F2(
 	function (maybeOverlay, model) {
 		return _Utils_update(
@@ -7399,14 +7697,15 @@ var $author$project$Game$setNext = F2(
 			},
 			$elm$random$Random$constant(list));
 	});
-var $author$project$Block$BigPlant = F3(
-	function (a, b, c) {
-		return {$: 'BigPlant', a: a, b: b, c: c};
-	});
 var $author$project$Block$BrickFloor = {$: 'BrickFloor'};
 var $author$project$Block$Flower = {$: 'Flower'};
-var $author$project$Block$WoodFloor = {$: 'WoodFloor'};
-var $author$project$Block$WoodWall = {$: 'WoodWall'};
+var $author$project$Block$GrasBlock = {$: 'GrasBlock'};
+var $author$project$Block$Shelf = function (a) {
+	return {$: 'Shelf', a: a};
+};
+var $author$project$Block$VineBlock = {$: 'VineBlock'};
+var $author$project$Block$Vines = {$: 'Vines'};
+var $author$project$Block$WoodTable = {$: 'WoodTable'};
 var $author$project$Structure$singleton = function (block) {
 	return $author$project$Structure$fromBlocks(
 		_List_fromArray(
@@ -7416,16 +7715,24 @@ var $author$project$Structure$singleton = function (block) {
 				block)
 			]));
 };
-var $author$project$Structure$sets = $elm$core$List$concat(
-	_List_fromArray(
-		[
-			A2(
-			$elm$core$List$map,
-			$author$project$Structure$singleton,
-			_List_fromArray(
-				[$author$project$Block$Flower, $author$project$Block$WoodChairLeft])),
-			_List_fromArray(
+var $author$project$Structure$sets = _List_fromArray(
+	[
+		_Utils_Tuple2(
+		'Wood',
+		_List_fromArray(
 			[
+				$author$project$Structure$singleton($author$project$Block$WoodTable),
+				$author$project$Structure$fromBlocks(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						_Utils_Tuple3(0, 0, 0),
+						$author$project$Block$Shelf(false)),
+						_Utils_Tuple2(
+						_Utils_Tuple3(0, 0, 1),
+						$author$project$Block$Shelf(true))
+					])),
+				$author$project$Structure$singleton($author$project$Block$WoodChairLeft),
 				$author$project$Structure$fromBlocks(
 				_List_fromArray(
 					[
@@ -7451,8 +7758,23 @@ var $author$project$Structure$sets = $elm$core$List$concat(
 						_Utils_Tuple2(
 						_Utils_Tuple3(1, 0, 0),
 						$author$project$Block$LongTableLeftFront)
+					]))
+			])),
+		_Utils_Tuple2(
+		'Brick',
+		_List_fromArray(
+			[
+				$author$project$Structure$singleton($author$project$Block$BrickWall),
+				$author$project$Structure$fromBlocks(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						_Utils_Tuple3(0, 0, 0),
+						$author$project$Block$BrickFloor),
+						_Utils_Tuple2(
+						_Utils_Tuple3(1, 0, 0),
+						$author$project$Block$BrickStairsLeft)
 					])),
-				$author$project$Structure$singleton($author$project$Block$BrickStairsLeft),
 				$author$project$Structure$fromBlocks(
 				_List_fromArray(
 					[
@@ -7465,22 +7787,24 @@ var $author$project$Structure$sets = $elm$core$List$concat(
 						_Utils_Tuple2(
 						_Utils_Tuple3(2, 0, 0),
 						$author$project$Block$BrickFloor)
-					])),
+					]))
+			])),
+		_Utils_Tuple2(
+		'Plants',
+		_List_fromArray(
+			[
 				$author$project$Structure$fromBlocks(
 				_List_fromArray(
 					[
 						_Utils_Tuple2(
-						_Utils_Tuple3(0, 0, 0),
-						$author$project$Block$WoodWall),
+						_Utils_Tuple3(0, 0, 1),
+						$author$project$Block$Vines),
 						_Utils_Tuple2(
 						_Utils_Tuple3(1, 0, 0),
-						$author$project$Block$WoodFloor),
+						$author$project$Block$VineBlock),
 						_Utils_Tuple2(
-						_Utils_Tuple3(0, 1, 0),
-						$author$project$Block$WoodWall),
-						_Utils_Tuple2(
-						_Utils_Tuple3(1, 1, 0),
-						$author$project$Block$WoodFloor)
+						_Utils_Tuple3(1, 0, 1),
+						$author$project$Block$GrasBlock)
 					])),
 				$author$project$Structure$fromBlocks(
 				_List_fromArray(
@@ -7509,9 +7833,29 @@ var $author$project$Structure$sets = $elm$core$List$concat(
 						_Utils_Tuple2(
 						_Utils_Tuple3(1, 1, 1),
 						A3($author$project$Block$BigPlant, true, true, true))
-					]))
-			])
-		]));
+					])),
+				$author$project$Structure$fromBlocks(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						_Utils_Tuple3(0, -1, 1),
+						$author$project$Block$Vines),
+						_Utils_Tuple2(
+						_Utils_Tuple3(0, 0, 0),
+						$author$project$Block$VineBlock),
+						_Utils_Tuple2(
+						_Utils_Tuple3(0, 0, 1),
+						$author$project$Block$GrasBlock),
+						_Utils_Tuple2(
+						_Utils_Tuple3(1, -1, 1),
+						$author$project$Block$Vines),
+						_Utils_Tuple2(
+						_Utils_Tuple3(1, 0, 1),
+						$author$project$Block$Vines)
+					])),
+				$author$project$Structure$singleton($author$project$Block$Flower)
+			]))
+	]);
 var $elm$random$Random$addOne = function (value) {
 	return _Utils_Tuple2(1, value);
 };
@@ -7681,24 +8025,42 @@ var $author$project$Main$update = F2(
 									A2($author$project$Game$setNext, cart, model.game));
 							},
 							A2(
-								$elm$random$Random$list,
-								$author$project$Config$maxCartSize,
-								function () {
-									var _v4 = $author$project$Structure$sets;
-									if (_v4.b) {
-										var head = _v4.a;
-										var tail = _v4.b;
-										return A2($elm$random$Random$uniform, head, tail);
-									} else {
-										return $elm$random$Random$constant(
-											$author$project$Structure$fromBlocks(_List_Nil));
-									}
-								}()))));
+								$elm$random$Random$andThen,
+								function (_v4) {
+									var list = _v4.a;
+									return A2(
+										$elm$random$Random$list,
+										$author$project$Config$maxCartSize,
+										function () {
+											if (list.b) {
+												var head = list.a;
+												var tail = list.b;
+												return A2(
+													$elm$random$Random$andThen,
+													function (_v6) {
+														var l = _v6.b;
+														if (l.b) {
+															var h = l.a;
+															var t = l.b;
+															return A2($elm$random$Random$uniform, h, t);
+														} else {
+															return $elm$random$Random$constant(
+																$author$project$Structure$fromBlocks(_List_Nil));
+														}
+													},
+													A2($elm$random$Random$uniform, head, tail));
+											} else {
+												return $elm$random$Random$constant(
+													$author$project$Structure$fromBlocks(_List_Nil));
+											}
+										}());
+								},
+								A2($author$project$Random$Extra$choices, 2, $author$project$Structure$sets)))));
 			case 'FlipStructure':
-				var _v5 = model.game.next;
-				if (_v5.b) {
-					var head = _v5.a;
-					var tail = _v5.b;
+				var _v8 = model.game.next;
+				if (_v8.b) {
+					var head = _v8.a;
+					var tail = _v8.b;
 					return withNoCmd(
 						function (game) {
 							return _Utils_update(
@@ -7719,9 +8081,9 @@ var $author$project$Main$update = F2(
 					return withNoCmd(model);
 				}
 			default:
-				var _v6 = model.undo;
-				if (_v6.$ === 'Just') {
-					var game = _v6.a;
+				var _v9 = model.undo;
+				if (_v9.$ === 'Just') {
+					var game = _v9.a;
 					return withNoCmd(
 						_Utils_update(
 							model,
@@ -7872,6 +8234,8 @@ var $author$project$Block$needsGround = function (block) {
 			return false;
 		case 'WoodFloor':
 			return false;
+		case 'Vines':
+			return false;
 		default:
 			return true;
 	}
@@ -7920,7 +8284,12 @@ var $author$project$Game$canPlace = F2(
 					var relY = _v3.b;
 					var relZ = _v3.c;
 					var block = _v2.b;
-					return ((!isValid(relX + x)) || ((!isValid(relY + y)) || (!isValid(relZ + z)))) ? false : (((!relZ) && $author$project$Block$needsGround(block)) ? A2(
+					return ((!isValid(relX + x)) || ((!isValid(relY + y)) || (!(0 <= (relZ + z))))) ? false : (_Utils_eq(
+						$elm$core$Maybe$Nothing,
+						A2(
+							$author$project$Game$get,
+							_Utils_Tuple3(x + relX, y + relY, (z + relZ) + 1),
+							game.board)) && (((!relZ) && $author$project$Block$needsGround(block)) ? A2(
 						$elm$core$Maybe$withDefault,
 						false,
 						A2(
@@ -7929,7 +8298,7 @@ var $author$project$Game$canPlace = F2(
 							A2(
 								$author$project$Game$get,
 								_Utils_Tuple3(x + relX, y + relY, z),
-								game.board))) : true);
+								game.board))) : true));
 				},
 				head.blocks);
 		} else {
@@ -8147,7 +8516,7 @@ var $author$project$Block$toSprite = function (block) {
 		case 'WoodChairLeft':
 			return _Utils_Tuple2(3, 1);
 		case 'Flower':
-			return _Utils_Tuple2(1, 0);
+			return _Utils_Tuple2(3, 4);
 		case 'BrickWall':
 			return _Utils_Tuple2(0, 2);
 		case 'BrickFloor':
@@ -8182,7 +8551,7 @@ var $author$project$Block$toSprite = function (block) {
 			return _Utils_Tuple2(6, 1);
 		case 'LongTableRightFront':
 			return _Utils_Tuple2(7, 1);
-		default:
+		case 'BigPlant':
 			if (!block.a) {
 				if (!block.b) {
 					if (!block.c) {
@@ -8211,6 +8580,24 @@ var $author$project$Block$toSprite = function (block) {
 						return _Utils_Tuple2(1, 6);
 					}
 				}
+			}
+		case 'GrasBlock':
+			return _Utils_Tuple2(2, 4);
+		case 'Vines':
+			return _Utils_Tuple2(2, 5);
+		case 'VineBlock':
+			return _Utils_Tuple2(3, 5);
+		case 'Pillar':
+			if (!block.a) {
+				return _Utils_Tuple2(4, 5);
+			} else {
+				return _Utils_Tuple2(4, 4);
+			}
+		default:
+			if (!block.a) {
+				return _Utils_Tuple2(6, 3);
+			} else {
+				return _Utils_Tuple2(6, 2);
 			}
 	}
 };
@@ -8365,7 +8752,7 @@ var $Orasund$elm_layout$Layout$text = F2(
 			$elm$html$Html$text(content));
 	});
 var $author$project$View$Overlay$shop = function (args) {
-	var zoom = {zoom: 3};
+	var zoom = {zoom: 2};
 	return A2(
 		$author$project$View$Overlay$asFullScreenOverlay,
 		_Utils_ap(
@@ -8424,30 +8811,44 @@ var $author$project$View$Overlay$shop = function (args) {
 						onPress: $elm$core$Maybe$Just(args.onRandom)
 					}),
 					A2(
-					$Orasund$elm_layout$Layout$row,
+					$Orasund$elm_layout$Layout$column,
 					_List_Nil,
 					A2(
-						$elm$core$List$map,
-						function (structure) {
-							return A3(
-								$Orasund$elm_layout$Layout$button,
-								_Utils_ap(
-									_List_fromArray(
-										[
-											A2($elm$html$Html$Attributes$style, 'width', '80px'),
-											A2($elm$html$Html$Attributes$style, 'height', '80px')
-										]),
-									$Orasund$elm_layout$Layout$centered),
-								{
-									label: 'Buy',
-									onPress: $elm$core$Maybe$Just(
-										args.buy(structure))
-								},
-								A3(
-									$author$project$View$Structure$toHtml,
-									zoom,
-									A2($elm$core$List$cons, $Orasund$elm_layout$Layout$asEl, $Orasund$elm_layout$Layout$centered),
-									structure));
+						$elm$core$List$concatMap,
+						function (_v0) {
+							var name = _v0.a;
+							var list = _v0.b;
+							return _List_fromArray(
+								[
+									A2($Orasund$elm_layout$Layout$text, _List_Nil, name),
+									A2(
+									$Orasund$elm_layout$Layout$row,
+									_List_Nil,
+									A2(
+										$elm$core$List$map,
+										function (structure) {
+											return A3(
+												$Orasund$elm_layout$Layout$button,
+												_Utils_ap(
+													_List_fromArray(
+														[
+															A2($elm$html$Html$Attributes$style, 'width', '80px'),
+															A2($elm$html$Html$Attributes$style, 'height', '80px')
+														]),
+													$Orasund$elm_layout$Layout$centered),
+												{
+													label: 'Buy',
+													onPress: $elm$core$Maybe$Just(
+														args.buy(structure))
+												},
+												A3(
+													$author$project$View$Structure$toHtml,
+													zoom,
+													A2($elm$core$List$cons, $Orasund$elm_layout$Layout$asEl, $Orasund$elm_layout$Layout$centered),
+													structure));
+										},
+										list))
+								]);
 						},
 						$author$project$Structure$sets))
 				])));

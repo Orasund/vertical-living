@@ -12,6 +12,7 @@ import Overlay exposing (Overlay(..))
 import Port
 import PortDefinition exposing (FromElm(..), ToElm(..))
 import Random exposing (Generator, Seed)
+import Random.Extra
 import Structure exposing (Structure)
 import View
 import View.Board
@@ -150,14 +151,28 @@ update msg model =
                     model |> withNoCmd
 
         RandomCart ->
-            (case Structure.sets of
-                head :: tail ->
-                    Random.uniform head tail
+            Structure.sets
+                |> Random.Extra.choices 2
+                |> Random.andThen
+                    (\( list, _ ) ->
+                        (case list of
+                            head :: tail ->
+                                Random.uniform head tail
+                                    |> Random.andThen
+                                        (\( _, l ) ->
+                                            case l of
+                                                h :: t ->
+                                                    Random.uniform h t
 
-                [] ->
-                    Random.constant (Structure.fromBlocks [])
-            )
-                |> Random.list Config.maxCartSize
+                                                [] ->
+                                                    Random.constant (Structure.fromBlocks [])
+                                        )
+
+                            [] ->
+                                Random.constant (Structure.fromBlocks [])
+                        )
+                            |> Random.list Config.maxCartSize
+                    )
                 |> Random.andThen
                     (\cart ->
                         model.game

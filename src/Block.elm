@@ -25,6 +25,11 @@ type Block
     | LongTableRightFront
     | LongTableRightBack
     | BigPlant Bool Bool Bool
+    | GrasBlock
+    | Vines
+    | VineBlock
+    | Pillar Bool
+    | Shelf Bool
 
 
 flip : Block -> Block
@@ -78,6 +83,9 @@ flip block =
         LongTableRightFront ->
             LongTableLeftFront
 
+        BigPlant a b c ->
+            BigPlant b a c
+
         _ ->
             block
 
@@ -89,6 +97,9 @@ needsGround block =
             False
 
         WoodFloor ->
+            False
+
+        Vines ->
             False
 
         _ ->
@@ -136,7 +147,7 @@ toSprite block =
             ( 3, 1 )
 
         Flower ->
-            ( 1, 0 )
+            ( 3, 4 )
 
         BrickWall ->
             ( 0, 2 )
@@ -212,3 +223,24 @@ toSprite block =
 
         BigPlant True True True ->
             ( 1, 6 )
+
+        GrasBlock ->
+            ( 2, 4 )
+
+        Vines ->
+            ( 2, 5 )
+
+        VineBlock ->
+            ( 3, 5 )
+
+        Pillar False ->
+            ( 4, 5 )
+
+        Pillar True ->
+            ( 4, 4 )
+
+        Shelf False ->
+            ( 6, 3 )
+
+        Shelf True ->
+            ( 6, 2 )

@@ -35,7 +35,7 @@ type Msg
     | Received (Result Json.Decode.Error ToElm)
     | GotSeed Seed
     | Place ( Int, Int )
-    | AddToCart Structure
+    | AddToCart (List Structure)
     | RandomCart
     | FlipStructure
     | Undo
@@ -55,7 +55,7 @@ init () =
     ( { game = Game.new
       , undo = Nothing
       , seed = Random.initialSeed 42
-      , overlay = Just (Shop { cart = [] })
+      , overlay = Just GameMenu
       }
     , [ Gen.Sound.asList |> RegisterSounds |> Port.fromElm
       , Random.generate GotSeed Random.independentSeed
@@ -64,10 +64,15 @@ init () =
     )
 
 
-newGame : Model -> Model
+newGame : Model -> ( Model, Cmd msg )
 newGame model =
-    { model | game = Game.new }
-        |> setOverlay Nothing
+    ( { model
+        | game = Game.new
+        , overlay = Just (Shop { cart = [] })
+      }
+    , PlaySound { looping = True, sound = Theme }
+        |> Port.fromElm
+    )
 
 
 gotSeed : Seed -> Model -> Model
@@ -88,7 +93,7 @@ update msg model =
     in
     case msg of
         NewGame ->
-            newGame model |> withNoCmd
+            newGame model
 
         GotSeed seed ->
             model |> gotSeed seed |> withNoCmd
@@ -130,11 +135,11 @@ update msg model =
                    )
                 |> withNoCmd
 
-        AddToCart structure ->
+        AddToCart list ->
             case model.overlay of
                 Just (Shop shop) ->
-                    structure
-                        :: shop.cart
+                    list
+                        ++ shop.cart
                         |> (\cart ->
                                 if List.length cart >= Config.maxCartSize then
                                     model.game
@@ -147,7 +152,7 @@ update msg model =
                            )
                         |> withNoCmd
 
-                Nothing ->
+                _ ->
                     model |> withNoCmd
 
         RandomCart ->
@@ -214,6 +219,10 @@ viewOverlay _ overlay =
                 , cart = cart
                 , onRandom = RandomCart
                 }
+
+        GameMenu ->
+            View.Overlay.gameMenu
+                { onPlay = NewGame }
 
 
 view :

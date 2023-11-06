@@ -63,3 +63,31 @@ choices count list =
                         Just elem ->
                             Random.map (addToChoices elem) genRest
                 )
+
+
+{-| Shuffle the list. Takes O(_n_ log _n_) time and no extra space.
+-}
+shuffle : List a -> Generator (List a)
+shuffle list =
+    let
+        anyInt : Generator Int
+        anyInt =
+            Random.int Random.minInt Random.maxInt
+    in
+    Random.map
+        (\independentSeed ->
+            list
+                |> List.foldl
+                    (\item ( acc, seed ) ->
+                        let
+                            ( tag, nextSeed ) =
+                                Random.step anyInt seed
+                        in
+                        ( ( item, tag ) :: acc, nextSeed )
+                    )
+                    ( [], independentSeed )
+                |> Tuple.first
+                |> List.sortBy Tuple.second
+                |> List.map Tuple.first
+        )
+        Random.independentSeed

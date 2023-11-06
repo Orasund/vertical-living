@@ -5,3 +5,4 @@ import Structure exposing (Structure)
 
 type Overlay
     = Shop { cart : List Structure }
+    | GameMenu

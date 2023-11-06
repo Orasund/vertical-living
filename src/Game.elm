@@ -4,6 +4,7 @@ import Block exposing (Block(..))
 import Config
 import Dict exposing (Dict)
 import Random exposing (Generator)
+import Random.Extra
 import Structure exposing (Structure)
 
 
@@ -26,7 +27,7 @@ new =
         board =
             List.range 0 (Config.boardSize - 1)
                 |> List.concatMap (\y -> List.range 0 (Config.boardSize - 1) |> List.map (Tuple.pair y))
-                |> List.map (\pos -> ( pos, { maxZ = 1, blocks = Dict.singleton 1 BrickWall } ))
+                |> List.map (\pos -> ( pos, { maxZ = 1, blocks = Dict.singleton 1 ConcreteWall } ))
                 |> Dict.fromList
                 |> (\dict -> { maxZ = 1, dict = dict })
     in
@@ -38,7 +39,7 @@ new =
 setNext : List Structure -> Game -> Generator Game
 setNext list game =
     list
-        |> Random.constant
+        |> Random.Extra.shuffle
         |> Random.map (\next -> { game | next = next })
 
 

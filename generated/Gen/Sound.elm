@@ -8,13 +8,13 @@ module Gen.Sound exposing (Sound(..), toString, fromString, asList)
     
 {-| Reprentation of Sound
 -}
-type Sound = ClickButton
+type Sound = ClickButton | Theme
 
 {-| List of all playable sounds
 -}
 asList : List Sound
 asList =
-    [ ClickButton ]
+    [ ClickButton, Theme ]
 
 {-| returns the path to the sound
 -}
@@ -23,8 +23,12 @@ toString sound =
     case sound of
       ClickButton -> "ClickButton.mp3"
 
+      Theme -> "theme.mp3"
+
 fromString : String -> Maybe Sound
 fromString string =
     case string of
       "ClickButton.mp3" -> Just ClickButton
+
+      "theme.mp3" -> Just Theme
       _ -> Nothing   

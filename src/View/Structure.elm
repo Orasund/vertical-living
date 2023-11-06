@@ -31,10 +31,10 @@ toIsomatricPos zoom ( x, y, z ) =
 toHtml : { zoom : Int } -> List (Attribute msg) -> Structure -> Html msg
 toHtml zoom attrs board =
     let
-        ( dimX, dimY, dimZ ) =
+        ( _, dimY, dimZ ) =
             board.dimensions
 
-        ( width, height ) =
+        _ =
             toIsomatricPos zoom ( dimZ, dimY, -dimZ + 1 )
     in
     (board.blocks

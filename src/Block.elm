@@ -2,15 +2,15 @@ module Block exposing (..)
 
 
 type Block
-    = BrickWall
+    = ConcreteWall
+    | BrickStairsLeft
+    | BrickStairsRight
+    | BrickFloor
     | WoodWall
     | WoodTable
     | WoodChairLeft
     | WoodChairRight
-    | BrickStairsLeft
-    | BrickStairsRight
     | Flower
-    | BrickFloor
     | WoodFloor
     | WoodCabinetLeftTopLeft
     | WoodCabinetLeftTopRight
@@ -25,11 +25,16 @@ type Block
     | LongTableRightFront
     | LongTableRightBack
     | BigPlant Bool Bool Bool
-    | GrasBlock
+    | Gras
     | Vines
-    | VineBlock
+    | GrasPillar Bool
     | Pillar Bool
-    | Shelf Bool
+    | RightShelf Bool
+    | LeftShelf Bool
+    | CoatHanger Bool
+    | WallPaneling { left : Bool }
+    | DoorMat
+    | Coat { left : Bool } Bool
 
 
 flip : Block -> Block
@@ -86,6 +91,18 @@ flip block =
         BigPlant a b c ->
             BigPlant b a c
 
+        RightShelf b ->
+            LeftShelf b
+
+        LeftShelf b ->
+            RightShelf b
+
+        WallPaneling { left } ->
+            WallPaneling { left = not left }
+
+        Coat { left } b ->
+            Coat { left = not left } b
+
         _ ->
             block
 
@@ -102,6 +119,9 @@ needsGround block =
         Vines ->
             False
 
+        Coat _ _ ->
+            False
+
         _ ->
             True
 
@@ -110,6 +130,9 @@ isSolid : Block -> Bool
 isSolid block =
     case block of
         Flower ->
+            False
+
+        Gras ->
             False
 
         WoodChairLeft ->
@@ -125,6 +148,30 @@ isSolid block =
             False
 
         BigPlant _ _ _ ->
+            False
+
+        WallPaneling _ ->
+            False
+
+        CoatHanger _ ->
+            False
+
+        LongTableLeftBack ->
+            False
+
+        LongTableLeftFront ->
+            False
+
+        LongTableRightBack ->
+            False
+
+        LongTableRightFront ->
+            False
+
+        DoorMat ->
+            False
+
+        Coat _ _ ->
             False
 
         _ ->
@@ -149,7 +196,7 @@ toSprite block =
         Flower ->
             ( 3, 4 )
 
-        BrickWall ->
+        ConcreteWall ->
             ( 0, 2 )
 
         BrickFloor ->
@@ -224,14 +271,17 @@ toSprite block =
         BigPlant True True True ->
             ( 1, 6 )
 
-        GrasBlock ->
+        GrasPillar True ->
             ( 2, 4 )
+
+        GrasPillar False ->
+            ( 3, 5 )
+
+        Gras ->
+            ( 2, 6 )
 
         Vines ->
             ( 2, 5 )
-
-        VineBlock ->
-            ( 3, 5 )
 
         Pillar False ->
             ( 4, 5 )
@@ -239,8 +289,44 @@ toSprite block =
         Pillar True ->
             ( 4, 4 )
 
-        Shelf False ->
+        RightShelf False ->
             ( 6, 3 )
 
-        Shelf True ->
+        RightShelf True ->
             ( 6, 2 )
+
+        LeftShelf False ->
+            ( 7, 3 )
+
+        LeftShelf True ->
+            ( 7, 2 )
+
+        CoatHanger False ->
+            ( 6, 5 )
+
+        CoatHanger True ->
+            ( 6, 4 )
+
+        WallPaneling { left } ->
+            if left then
+                ( 5, 5 )
+
+            else
+                ( 5, 4 )
+
+        DoorMat ->
+            ( 7, 4 )
+
+        Coat { left } b ->
+            case ( left, b ) of
+                ( True, True ) ->
+                    ( 6, 6 )
+
+                ( True, False ) ->
+                    ( 6, 7 )
+
+                ( False, True ) ->
+                    ( 7, 6 )
+
+                ( False, False ) ->
+                    ( 7, 7 )

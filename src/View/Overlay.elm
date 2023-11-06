@@ -8,7 +8,7 @@ import Structure exposing (Structure)
 import View.Structure
 
 
-shop : { buy : Structure -> msg, cart : List Structure, onRandom : msg } -> Html msg
+shop : { buy : List Structure -> msg, cart : List Structure, onRandom : msg } -> Html msg
 shop args =
     let
         zoom =
@@ -34,27 +34,55 @@ shop args =
     , Structure.sets
         |> List.concatMap
             (\( name, list ) ->
-                [ Layout.text [] name
+                [ Layout.textButton []
+                    { label = name
+                    , onPress = Just (args.buy list)
+                    }
                 , list
                     |> List.map
                         (\structure ->
                             View.Structure.toHtml zoom
                                 (Layout.asEl :: Layout.centered)
                                 structure
-                                |> Layout.button
+                                |> Layout.el
                                     ([ Html.Attributes.style "width" "80px"
                                      , Html.Attributes.style "height" "80px"
                                      ]
                                         ++ Layout.centered
                                     )
-                                    { label = "Buy"
-                                    , onPress = Just (args.buy structure)
-                                    }
                         )
                     |> Layout.row []
                 ]
             )
         |> Layout.column []
+    ]
+        |> Layout.column
+            (Html.Attributes.style "gap" "var(--big-space)"
+                :: Layout.centered
+            )
+        |> asFullScreenOverlay
+            ([ Html.Attributes.style "background-color" "var(--secondary-color)"
+             , Html.Attributes.style "color" "white"
+             ]
+                ++ Layout.centered
+            )
+
+
+gameMenu : { onPlay : msg } -> Html msg
+gameMenu args =
+    [ [ "Vertial" |> Layout.text [ Html.Attributes.class "font-size-title" ]
+      , "Living" |> Layout.text [ Html.Attributes.class "font-size-title" ]
+      ]
+        |> Layout.column
+            (Html.Attributes.style "gap" "var(--space)"
+                :: Layout.centered
+            )
+    , "Stack structures on top of eachother. Most structures placed wins."
+        |> Layout.text [ Html.Attributes.style "padding" "var(--big-space)" ]
+    , Layout.textButton []
+        { label = "Play"
+        , onPress = args.onPlay |> Just
+        }
     ]
         |> Layout.column
             (Html.Attributes.style "gap" "var(--big-space)"
